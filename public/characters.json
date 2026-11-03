@@ -1,0 +1,372 @@
+[
+ {
+  "id": "acier-silva",
+  "name": "Acier Silva",
+  "file": "personajes/acier-silva.webp"
+ },
+ {
+  "id": "asta",
+  "name": "Asta",
+  "file": "personajes/asta.webp"
+ },
+ {
+  "id": "capitan-vengeance",
+  "name": "Capitán Vengeance",
+  "file": "personajes/capitan-vengeance.webp"
+ },
+ {
+  "id": "charlotte-roselei",
+  "name": "Charlotte Roselei",
+  "file": "personajes/charlotte-roselei.webp"
+ },
+ {
+  "id": "charmy-pappitson",
+  "name": "Charmy Pappitson",
+  "file": "personajes/charmy-pappitson.webp"
+ },
+ {
+  "id": "danmatio",
+  "name": "Danmatio",
+  "file": "personajes/danmatio.webp"
+ },
+ {
+  "id": "dorothy-unsworth",
+  "name": "Dorothy Unsworth",
+  "file": "personajes/dorothy-unsworth.webp"
+ },
+ {
+  "id": "drourot",
+  "name": "Drourot",
+  "file": "personajes/drourot.webp"
+ },
+ {
+  "id": "fana-elfa",
+  "name": "Fana (Elfa)",
+  "file": "personajes/fana-elfa.webp"
+ },
+ {
+  "id": "fana",
+  "name": "Fana",
+  "file": "personajes/fana.webp"
+ },
+ {
+  "id": "fanzell-krugger",
+  "name": "Fanzell Krugger",
+  "file": "personajes/fanzell-krugger.webp"
+ },
+ {
+  "id": "finesse",
+  "name": "Finesse",
+  "file": "personajes/finesse.webp"
+ },
+ {
+  "id": "finral",
+  "name": "Finral",
+  "file": "personajes/finral.webp"
+ },
+ {
+  "id": "fuegoleon",
+  "name": "Fuegoleon",
+  "file": "personajes/fuegoleon.webp"
+ },
+ {
+  "id": "fuja",
+  "name": "Fuja",
+  "file": "personajes/fuja.webp"
+ },
+ {
+  "id": "gauche",
+  "name": "Gauche",
+  "file": "personajes/gauche.webp"
+ },
+ {
+  "id": "gifso",
+  "name": "Gifso",
+  "file": "personajes/gifso.webp"
+ },
+ {
+  "id": "gordo-jamon",
+  "name": "Gordo jamón",
+  "file": "personajes/gordo-jamon.webp"
+ },
+ {
+  "id": "gordo-puto-del-rey",
+  "name": "Gordo puto del rey",
+  "file": "personajes/gordo-puto-del-rey.webp"
+ },
+ {
+  "id": "gordon-agrippa",
+  "name": "Gordon Agrippa",
+  "file": "personajes/gordon-agrippa.webp"
+ },
+ {
+  "id": "grey",
+  "name": "Grey",
+  "file": "personajes/grey.webp"
+ },
+ {
+  "id": "hamon-xd",
+  "name": "Hamon xd",
+  "file": "personajes/hamon-xd.webp"
+ },
+ {
+  "id": "heath-grace",
+  "name": "Heath grace",
+  "file": "personajes/heath-grace.webp"
+ },
+ {
+  "id": "henry",
+  "name": "Henry",
+  "file": "personajes/henry.webp"
+ },
+ {
+  "id": "hermana-lilly",
+  "name": "Hermana Lilly",
+  "file": "personajes/hermana-lilly.webp"
+ },
+ {
+  "id": "jack-the-ripper",
+  "name": "Jack the ripper",
+  "file": "personajes/jack-the-ripper.webp"
+ },
+ {
+  "id": "julius-novachronno",
+  "name": "Julius Novachronno",
+  "file": "personajes/julius-novachronno.webp"
+ },
+ {
+  "id": "kahono",
+  "name": "Kahono",
+  "file": "personajes/kahono.webp"
+ },
+ {
+  "id": "kiato",
+  "name": "Kiato",
+  "file": "personajes/kiato.webp"
+ },
+ {
+  "id": "kirk-vermillion",
+  "name": "Kirk Vermillion",
+  "file": "personajes/kirk-vermillion.webp"
+ },
+ {
+  "id": "klaus",
+  "name": "Klaus",
+  "file": "personajes/klaus.webp"
+ },
+ {
+  "id": "ladros",
+  "name": "Ladros",
+  "file": "personajes/ladros.webp"
+ },
+ {
+  "id": "langris",
+  "name": "Langris",
+  "file": "personajes/langris.webp"
+ },
+ {
+  "id": "lemiel-silvamillion",
+  "name": "Lemiel Silvamillion",
+  "file": "personajes/lemiel-silvamillion.webp"
+ },
+ {
+  "id": "leopold-vermillion",
+  "name": "Leopold Vermillion",
+  "file": "personajes/leopold-vermillion.webp"
+ },
+ {
+  "id": "lich-falso",
+  "name": "Lich (falso",
+  "file": "personajes/lich-falso.webp"
+ },
+ {
+  "id": "lich-original",
+  "name": "Lich (original)",
+  "file": "personajes/lich-original.webp"
+ },
+ {
+  "id": "lotus",
+  "name": "Lotus",
+  "file": "personajes/lotus.webp"
+ },
+ {
+  "id": "luck",
+  "name": "Luck",
+  "file": "personajes/luck.webp"
+ },
+ {
+  "id": "magna-swing",
+  "name": "Magna Swing",
+  "file": "personajes/magna-swing.webp"
+ },
+ {
+  "id": "marie",
+  "name": "Marie",
+  "file": "personajes/marie.webp"
+ },
+ {
+  "id": "mariella",
+  "name": "Mariella",
+  "file": "personajes/mariella.webp"
+ },
+ {
+  "id": "mars",
+  "name": "Mars",
+  "file": "personajes/mars.webp"
+ },
+ {
+  "id": "marx",
+  "name": "Marx",
+  "file": "personajes/marx.webp"
+ },
+ {
+  "id": "mayoraleon",
+  "name": "Mayoraleon",
+  "file": "personajes/mayoraleon.webp"
+ },
+ {
+  "id": "mimossa-vermillion",
+  "name": "Mimossa Vermillion",
+  "file": "personajes/mimossa-vermillion.webp"
+ },
+ {
+  "id": "nebra-silva",
+  "name": "Nebra Silva",
+  "file": "personajes/nebra-silva.webp"
+ },
+ {
+  "id": "neige",
+  "name": "Neige",
+  "file": "personajes/neige.webp"
+ },
+ {
+  "id": "nero",
+  "name": "Nero",
+  "file": "personajes/nero.webp"
+ },
+ {
+  "id": "noelle",
+  "name": "Noelle",
+  "file": "personajes/noelle.webp"
+ },
+ {
+  "id": "nozel-silva",
+  "name": "Nozel Silva",
+  "file": "personajes/nozel-silva.webp"
+ },
+ {
+  "id": "orsi",
+  "name": "Orsi",
+  "file": "personajes/orsi.webp"
+ },
+ {
+  "id": "puli-angel",
+  "name": "Puli Angel",
+  "file": "personajes/puli-angel.webp"
+ },
+ {
+  "id": "puta-de-mrd",
+  "name": "Puta de mrd",
+  "file": "personajes/puta-de-mrd.webp"
+ },
+ {
+  "id": "rades",
+  "name": "Rades",
+  "file": "personajes/rades.webp"
+ },
+ {
+  "id": "rebecca",
+  "name": "Rebecca",
+  "file": "personajes/rebecca.webp"
+ },
+ {
+  "id": "reina-de-las-brujas",
+  "name": "Reina de las Brujas",
+  "file": "personajes/reina-de-las-brujas.webp"
+ },
+ {
+  "id": "revchi",
+  "name": "Revchi",
+  "file": "personajes/revchi.webp"
+ },
+ {
+  "id": "rhya",
+  "name": "Rhya",
+  "file": "personajes/rhya.webp"
+ },
+ {
+  "id": "rill",
+  "name": "Rill",
+  "file": "personajes/rill.webp"
+ },
+ {
+  "id": "salamander",
+  "name": "Salamander",
+  "file": "personajes/salamander.webp"
+ },
+ {
+  "id": "sally",
+  "name": "Sally",
+  "file": "personajes/sally.webp"
+ },
+ {
+  "id": "sol-marron",
+  "name": "Sol Marron",
+  "file": "personajes/sol-marron.webp"
+ },
+ {
+  "id": "solid-silva",
+  "name": "Solid Silva",
+  "file": "personajes/solid-silva.webp"
+ },
+ {
+  "id": "tetia",
+  "name": "Tetia",
+  "file": "personajes/tetia.webp"
+ },
+ {
+  "id": "theresa",
+  "name": "Theresa",
+  "file": "personajes/theresa.webp"
+ },
+ {
+  "id": "valtos",
+  "name": "Valtos",
+  "file": "personajes/valtos.webp"
+ },
+ {
+  "id": "vanessa",
+  "name": "Vanessa",
+  "file": "personajes/vanessa.webp"
+ },
+ {
+  "id": "vetto",
+  "name": "Vetto",
+  "file": "personajes/vetto.webp"
+ },
+ {
+  "id": "yami-sukehiro",
+  "name": "Yami Sukehiro",
+  "file": "personajes/yami-sukehiro.webp"
+ },
+ {
+  "id": "yuno-gay",
+  "name": "Yuno gay",
+  "file": "personajes/yuno-gay.webp"
+ },
+ {
+  "id": "zagred",
+  "name": "Zagred",
+  "file": "personajes/zagred.webp"
+ },
+ {
+  "id": "zara",
+  "name": "Zara",
+  "file": "personajes/zara.webp"
+ },
+ {
+  "id": "zoka",
+  "name": "Zoka",
+  "file": "personajes/zoka.webp"
+ }
+]

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Grimorio de Adivinanzas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="banner" class="hidden"></div>
+<div id="toast" class="hidden"></div>
+
+<!-- Inicio -->
+<section id="screenHome" class="screen">
+  <div class="panel center-panel">
+    <h1>Grimorio de Adivinanzas</h1>
+    <p class="sub">Adiviná el personaje secreto de tu rival antes de que adivine el tuyo.</p>
+    <label for="nameInput">Tu apodo</label>
+    <input id="nameInput" maxlength="20" placeholder="Ej: Balatro" autocomplete="off">
+    <button id="btnCreate" class="btn gold">Crear sala nueva</button>
+    <div class="or">o</div>
+    <label for="codeInput">Código de sala</label>
+    <input id="codeInput" maxlength="4" placeholder="ABCD" autocomplete="off" style="text-transform:uppercase">
+    <button id="btnJoin" class="btn">Unirme a una sala</button>
+    <p id="homeError" class="error"></p>
+    <p class="hint">Se juega en computadora con mouse (se usa el clic derecho para arrastrar).</p>
+  </div>
+</section>
+
+<!-- Sala de espera -->
+<section id="screenLobby" class="screen hidden">
+  <div class="panel center-panel">
+    <h1>Sala <span id="lobbyCode"></span></h1>
+    <p class="sub">Pasale este link a tu rival:</p>
+    <div class="linkrow"><input id="lobbyLink" readonly><button id="btnCopy" class="btn small">Copiar</button></div>
+    <ul id="lobbyPlayers" class="plist"></ul>
+    <button id="btnReady" class="btn gold">¡Listo!</button>
+    <p id="lobbyMsg" class="hint"></p>
+  </div>
+</section>
+
+<!-- Juego -->
+<section id="screenGame" class="screen hidden">
+  <header id="topbar">
+    <div class="brand">Grimorio de Adivinanzas</div>
+    <div id="score"></div>
+    <div class="tools">
+      <button id="btnCopyGame" class="btn small" title="Copiar link de la sala">Sala <span id="gameCode"></span> ⧉</button>
+      <button id="btnMute" class="btn small" title="Sonido">🔊</button>
+    </div>
+  </header>
+
+  <aside id="chatPanel" class="panel">
+    <h2>Preguntas</h2>
+    <div id="chatLog"></div>
+    <div id="turnInfo"></div>
+    <form id="askForm" class="hidden">
+      <input id="askInput" maxlength="200" placeholder="Pregunta de Sí/No…" autocomplete="off">
+      <button class="btn gold small">Preguntar</button>
+    </form>
+    <div id="answerBtns" class="hidden">
+      <button class="btn good" data-a="Sí">Sí</button>
+      <button class="btn bad" data-a="No">No</button>
+      <button class="btn" data-a="No sé">No sé</button>
+    </div>
+  </aside>
+
+  <main id="stage">
+    <div id="stageTop">
+      <div id="myCard" class="panel">
+        <div class="lbl">Tu personaje secreto</div>
+        <img id="myImg" alt="">
+        <div id="myName"></div>
+        <div id="myHearts" class="hearts"></div>
+      </div>
+      <div id="oppInfo" class="panel">
+        <div id="oppName"></div>
+        <div id="oppHearts" class="hearts"></div>
+        <div id="zoneCaption"></div>
+      </div>
+      <div id="zoneWrap">
+        <div id="guessZone"><span>?</span></div>
+        <div id="guessBtns" class="hidden">
+          <button id="btnYes" class="btn gold">Mmm, para mí sí</button>
+          <button id="btnNo" class="btn">Permitime dudar...</button>
+        </div>
+      </div>
+    </div>
+    <div class="galhint">Clic izquierdo: tachar · Clic derecho (mantener): arrastrar · Soltá en el “?” para adivinar</div>
+    <div id="gallery"></div>
+  </main>
+
+  <aside id="notesPanel" class="panel">
+    <h2>Notas</h2>
+    <label id="lblMine" for="notesMine"></label>
+    <textarea id="notesMine" maxlength="2000"></textarea>
+    <label id="lblOpp" for="notesOpp"></label>
+    <textarea id="notesOpp" maxlength="2000"></textarea>
+  </aside>
+</section>
+
+<!-- Fin de ronda -->
+<div id="overlay" class="hidden">
+  <div class="panel over-box">
+    <h2 id="overTitle"></h2>
+    <p id="overSub" class="sub"></p>
+    <div class="reveal">
+      <figure><img id="revMine" alt=""><figcaption id="revMineName"></figcaption></figure>
+      <figure><img id="revOpp" alt=""><figcaption id="revOppName"></figcaption></figure>
+    </div>
+    <div id="overScore" class="sub"></div>
+    <div id="overBtns">
+      <button id="btnRematchYes" class="btn gold">¡Otra ronda!</button>
+      <button id="btnRematchNo" class="btn">No, terminar</button>
+    </div>
+    <p id="overWait" class="hint hidden"></p>
+    <button id="btnHome" class="btn gold hidden">Volver al inicio</button>
+  </div>
+</div>
+
+<div id="fly"></div>
+
+<script src="net.js"></script>
+<script src="sfx.js"></script>
+<script src="ragdoll.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
