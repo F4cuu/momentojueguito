@@ -22,6 +22,8 @@
   let guessPending = false;
   let celebrationUntil = 0;
   const struck = new Set();
+  let rivalStruck = [];
+  let galleryMode = null;
   let connBanner = '';
   let toastTimer = null;
 
@@ -92,10 +94,11 @@
   $('btnMute').textContent = Sfx.isMuted() ? '🔇' : '🔊';
 
   // ---------- Galería ----------
-  function buildGallery() {
+  function buildGallery(mode) {
     const g = $('gallery');
     g.innerHTML = '';
-    chars.forEach(c => {
+    galleryMode = mode || null;
+    chars.filter(c => !mode || mode === 'mix' || c.pool === mode).forEach(c => {
       const d = document.createElement('div');
       d.className = 'gcard';
       d.dataset.id = c.id;
@@ -118,8 +121,22 @@
     if (!card || e.button !== 0) return;
     const id = card.dataset.id;
     if (struck.has(id)) struck.delete(id); else struck.add(id);
+    sendStrikes();
     updateAway();
+    renderStrikes();
   });
+
+  const sendStrikes = () => Net.send('strikes', { ids: [...struck] });
+  function renderStrikes() {
+    if (!state) return;
+    const fill = (i, ids) => {
+      $('strikes' + i).innerHTML = ids.filter(id => charMap[id]).map(id =>
+        '<div class="sk" title="' + esc(charMap[id].name) + '"><img src="' + esc(charMap[id].file) + '" alt=""></div>').join('');
+      $('stt' + i).textContent = ids.length ? 'Descartó (' + ids.length + ')' : '';
+    };
+    fill(state.me, [...struck]);
+    fill(1 - state.me, rivalStruck);
+  }
 
   function startGrab(e, id) {
     if (!state || state.phase !== 'playing' || zoneLocal) return;
@@ -214,18 +231,36 @@
   // ---------- Render ----------
   const hearts = n => '<span>' + '♥'.repeat(Math.max(0, n)) + '</span><span class="lost">' + '♥'.repeat(Math.max(0, 2 - n)) + '</span>';
 
+  const MODE_NAMES = { bc: 'Black Clover', dnd: 'Torre (D&D)', mix: 'Ambas mezcladas' };
+  document.querySelectorAll('.btn.mode').forEach(b => {
+    b.onclick = () => Net.send('choosePool', { mode: b.dataset.mode }, r => r.error && toast(errText(r.error)));
+  });
+
   function renderLobby() {
     showScreen('Lobby');
     const s = state;
+    const choosing = s.phase === 'choosing';
+    $('modeBox').classList.toggle('hidden', !choosing);
+    if (choosing) {
+      const mine = s.picks[s.me], theirs = s.picks[1 - s.me];
+      document.querySelectorAll('.btn.mode').forEach(b => {
+        b.classList.toggle('picked', b.dataset.mode === mine);
+        b.classList.toggle('rival', b.dataset.mode === theirs && theirs !== mine);
+      });
+      const opp = s.players[1 - s.me].name;
+      $('modeMsg').textContent = !mine ? (theirs ? opp + ' ya eligió. ¡Elegí vos!' : 'Elegí un modo.')
+        : (!theirs ? 'Esperando que ' + opp + ' elija…' : opp + ' eligió ' + MODE_NAMES[theirs] + '. Tienen que coincidir: cambiá tu voto o esperá que cambie.');
+    }
     $('lobbyCode').textContent = s.code;
     $('lobbyLink').value = roomLink();
     $('lobbyPlayers').innerHTML = s.players.map((p, i) =>
       '<li><span>Jugador ' + (i + 1) + ': ' + esc(p.name) + '</span><span class="' + (p.ready ? 'ok' : 'wait') + '">' + (p.ready ? '✔ Listo' : 'Esperando…') + '</span></li>').join('') +
       (s.players.length < 2 ? '<li><span class="wait">Esperando al otro jugador…</span></li>' : '');
     const me = s.players[s.me];
+    $('btnReady').classList.toggle('hidden', choosing);
     $('btnReady').disabled = me.ready || s.players.length < 2;
     $('btnReady').textContent = me.ready ? 'Esperando al rival…' : '¡Listo!';
-    $('lobbyMsg').textContent = s.players.length < 2 ? 'Cuando entre tu rival, los dos aprietan “Listo” y empieza la partida.' : '';
+    $('lobbyMsg').textContent = choosing ? '' : s.players.length < 2 ? 'Cuando entre tu rival, los dos aprietan “Listo” y empieza la partida.' : '';
     Board.setVisible(false);
   }
 
@@ -280,7 +315,9 @@
 
     Board.setVisible(true);
 
+    if (s.mode && s.mode !== galleryMode) buildGallery(s.mode);
     updateAway();
+    renderStrikes();
     updateZoneUI();
     renderOverlay();
   }
@@ -321,7 +358,7 @@
 
   function render() {
     if (!state) { showScreen('Home'); Board.setVisible(false); updateBanner(); return; }
-    if (state.phase === 'lobby') renderLobby(); else renderGame();
+    if (state.phase === 'lobby' || state.phase === 'choosing') renderLobby(); else renderGame();
     updateBanner();
   }
 
@@ -333,6 +370,7 @@
       Ragdoll.clearAll();
       Board.clear();
       struck.clear();
+      rivalStruck = [];
       zoneLocal = null;
       guessPending = false;
       celebrationUntil = 0;
@@ -343,12 +381,14 @@
       if (myMove && !wasMyMove) Sfx.turn();
       else if (s.chat.length > prev.chat.length) Sfx.msg();
     }
+    if (prev && prev.phase === 'playing' && s.phase === 'playing' && !prev.players[1 - prev.me].connected && s.players[1 - s.me].connected) sendStrikes();
     render();
   });
   Net.on('dragMove', d => Ragdoll.remoteMove(d));
   Net.on('boardStroke', d => Board.remoteStroke(d));
   Net.on('boardClear', () => Board.clear());
   Net.on('boardOpen', d => Board.remoteOpen(d.open));
+  Net.on('strikes', d => { rivalStruck = (d && Array.isArray(d.ids) ? d.ids : []).filter(id => charMap[id]); renderStrikes(); });
   Net.on('dragEnd', d => Ragdoll.remoteEnd(d));
   Net.on('zoneDrop', d => { Ragdoll.remoteZone(d); updateZoneUI(); });
   Net.on('zoneCancel', d => { Ragdoll.eject(d.id, state ? state.me : 0); updateZoneUI(); });
@@ -390,7 +430,7 @@
       chars = [];
     }
     chars.forEach(c => { charMap[c.id] = c; });
-    buildGallery();
+    buildGallery(null);
     Board.init({ send: (ev, data) => Net.send(ev, data) });
     Ragdoll.init($('fly'), {
       character: id => charMap[id] || { name: id, file: '' },

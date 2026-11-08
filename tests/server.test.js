@@ -42,8 +42,16 @@ test('flujo completo cliente-servidor: sorteo privado, turnos, ragdoll y revanch
     await emit(a, 'ready');
     await emit(b, 'ready');
     await wait(100);
+    assert.equal(a.latest.phase, 'choosing');
+    assert.equal((await emit(a, 'choosePool', { mode: 'dnd' })).ok, true);
+    assert.equal((await emit(b, 'choosePool', { mode: 'bc' })).ok, true);
+    await wait(50);
+    assert.equal(a.latest.phase, 'choosing');
+    assert.equal((await emit(b, 'choosePool', { mode: 'dnd' })).ok, true);
+    await wait(100);
     assert.equal(a.latest.phase, 'playing');
-    assert.notEqual(a.latest.myCharacter, b.latest.myCharacter);
+    assert.equal(a.latest.mode, 'dnd');
+    assert.ok(a.latest.myCharacter.startsWith('dnd-'));
     assert.equal(a.latest.opponentCharacter, undefined);
     assert.equal(JSON.stringify(a.latest).includes(b.latest.myCharacter), false);
 

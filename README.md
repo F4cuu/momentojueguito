@@ -49,3 +49,6 @@ Las imágenes originales están en `PERSONAJES/`. Las que usa el juego son versi
 - Pizarrón compartido: asoma arriba de la pantalla; con clic en la solapa se abre para los dos jugadores, que dibujan a la vez (colores, grosor, borrador, borrar todo, agrandar).
 - "Ceder turno" para saltear.
 - Las cartas que no vuelven a su lugar caen al borde inferior con física de cuerpo rígido (depende de dónde las agarres).
+- Modos de juego: al darse "Listo" eligen pool (Black Clover, Torre D&D o ambas mezcladas); arranca cuando los dos eligen lo mismo.
+- Cada jugador sortea por separado: pueden tocar el mismo personaje.
+- Los personajes tachados de cada jugador se muestran debajo de su personaje.

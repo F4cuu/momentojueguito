@@ -13,7 +13,9 @@ function createRoom(code) {
   return {
     code,
     players: [],
-    phase: 'lobby', // lobby | playing | roundOver | ended
+    phase: 'lobby', // lobby | choosing | playing | roundOver | ended
+    mode: null, // 'bc' | 'dnd' | 'mix'
+    picks: [null, null],
     turn: 0,
     awaiting: 'ask', // ask | answer
     winner: null,
@@ -53,15 +55,37 @@ function setReady(room, id) {
   room.players[indexOf(room, id)].ready = true;
 }
 
+const MODES = ['bc', 'dnd', 'mix'];
+
+// Ambos están listos: ahora eligen el modo (pool de personajes).
+function beginChoosing(room) {
+  room.phase = 'choosing';
+  room.picks = [null, null];
+}
+
+// Cada jugador vota un modo; la partida arranca cuando los dos eligen el mismo.
+function choosePool(room, id, mode, poolsMap, rng = Math.random) {
+  if (room.phase !== 'choosing') fail('RONDA_NO_ACTIVA');
+  if (!MODES.includes(mode)) fail('MODO_INVALIDO');
+  const i = indexOf(room, id);
+  room.picks[i] = mode;
+  if (room.picks[0] && room.picks[0] === room.picks[1]) {
+    room.mode = mode;
+    startRound(room, poolsMap[mode], rng);
+    return { started: true };
+  }
+  return { started: false };
+}
+
 function allReady(room) {
   return room.players.length === 2 && room.players.every(p => p.ready);
 }
 
+// Cada jugador sortea por separado: puede tocar el mismo personaje (es parte de la gracia).
 function pickTwo(pool, rng) {
-  if (pool.length < 2) fail('POCOS_PERSONAJES');
+  if (pool.length < 1) fail('POCOS_PERSONAJES');
   const a = Math.floor(rng() * pool.length);
-  let b = Math.floor(rng() * (pool.length - 1));
-  if (b >= a) b += 1;
+  const b = Math.floor(rng() * pool.length);
   return [pool[a], pool[b]];
 }
 
@@ -179,16 +203,18 @@ function viewFor(room, id) {
     awaiting: room.awaiting,
     winner: room.winner,
     wins: room.wins.slice(),
+    mode: room.mode,
+    picks: room.picks.slice(),
     chat: room.chat.slice(),
     rematch: room.rematch.slice(),
     players: room.players.map(p => ({ name: p.name, ready: p.ready, lives: p.lives, connected: p.connected })),
-    myCharacter: room.phase === 'lobby' ? null : room.players[me].character,
+    myCharacter: room.phase === 'lobby' || room.phase === 'choosing' ? null : room.players[me].character,
   };
   if (over && room.players[opp]) view.opponentCharacter = room.players[opp].character;
   return view;
 }
 
 module.exports = {
-  ANSWERS, LIVES, createRoom, addPlayer, reconnect, setReady, allReady,
+  ANSWERS, LIVES, MODES, beginChoosing, choosePool, createRoom, addPlayer, reconnect, setReady, allReady,
   startRound, ask, answer, guess, rematchVote, skip, viewFor,
 };

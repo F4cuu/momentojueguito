@@ -9,6 +9,11 @@ const G = require('./game-logic');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const characters = JSON.parse(fs.readFileSync(path.join(PUBLIC_DIR, 'characters.json'), 'utf8'));
 const CHARACTER_IDS = characters.map(c => c.id);
+const POOLS = {
+  bc: characters.filter(c => c.pool === 'bc').map(c => c.id),
+  dnd: characters.filter(c => c.pool === 'dnd').map(c => c.id),
+  mix: CHARACTER_IDS,
+};
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // sin I ni O
 const ROOM_TTL_MS = 10 * 60 * 1000;
 const MIME = {
@@ -101,8 +106,9 @@ function createServer() {
       },
       ready: (_, reply) => act(() => {
         G.setReady(room, id);
-        if (G.allReady(room)) G.startRound(room, CHARACTER_IDS);
+        if (G.allReady(room)) G.beginChoosing(room);
       }, reply),
+      choosePool: ({ mode } = {}, reply) => act(() => G.choosePool(room, id, mode, POOLS), reply),
       ask: ({ text } = {}, reply) => act(() => G.ask(room, id, text), reply),
       answer: ({ answer } = {}, reply) => act(() => G.answer(room, id, answer), reply),
       skip: (_, reply) => act(() => G.skip(room, id), reply),
@@ -112,10 +118,10 @@ function createServer() {
         room.players.forEach(p => send(p.id, 'guessResult', { by, characterId, correct: r.correct }));
         return r;
       }, reply),
-      rematch: ({ yes } = {}, reply) => act(() => G.rematchVote(room, id, yes, CHARACTER_IDS), reply),
+      rematch: ({ yes } = {}, reply) => act(() => G.rematchVote(room, id, yes, POOLS[room.mode] || CHARACTER_IDS), reply),
     };
     // Eventos efímeros del ragdoll: se reenvían al rival sin tocar el estado del juego.
-    const RELAY = new Set(['dragMove', 'dragEnd', 'zoneDrop', 'zoneCancel', 'boardStroke', 'boardClear', 'boardOpen']);
+    const RELAY = new Set(['dragMove', 'dragEnd', 'zoneDrop', 'zoneCancel', 'boardStroke', 'boardClear', 'boardOpen', 'strikes']);
 
     ws.on('message', raw => {
       let msg;

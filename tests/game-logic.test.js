@@ -36,13 +36,35 @@ test('allReady es true solo con 2 jugadores listos', () => {
   assert.equal(G.allReady(room), true);
 });
 
-test('los personajes sorteados son siempre distintos (1000 rondas)', () => {
-  for (let i = 0; i < 1000; i++) {
+test('los personajes se sortean por separado: pueden coincidir y siempre salen del pool', () => {
+  let same = 0;
+  for (let i = 0; i < 2000; i++) {
     const { room } = started();
-    assert.notEqual(room.players[0].character, room.players[1].character);
     assert.ok(CHARS.includes(room.players[0].character));
     assert.ok(CHARS.includes(room.players[1].character));
+    if (room.players[0].character === room.players[1].character) same++;
   }
+  assert.ok(same > 0, 'con pool chico tiene que haber coincidencias');
+});
+
+test('elegir pool: arranca solo cuando los dos eligen el mismo modo', () => {
+  const room = G.createRoom('ABCD');
+  G.addPlayer(room, 'a', 'Ana');
+  G.addPlayer(room, 'b', 'Beto');
+  G.setReady(room, 'a');
+  G.setReady(room, 'b');
+  G.beginChoosing(room);
+  assert.equal(room.phase, 'choosing');
+  const pools = { bc: ['x', 'y'], dnd: ['p', 'q'], mix: ['x', 'y', 'p', 'q'] };
+  assert.throws(() => G.choosePool(room, 'a', 'otro', pools), /MODO_INVALIDO/);
+  assert.equal(G.choosePool(room, 'a', 'bc', pools).started, false);
+  assert.equal(G.choosePool(room, 'b', 'dnd', pools).started, false);
+  assert.equal(room.phase, 'choosing');
+  assert.equal(G.choosePool(room, 'b', 'bc', pools).started, true);
+  assert.equal(room.phase, 'playing');
+  assert.equal(room.mode, 'bc');
+  assert.ok(['x', 'y'].includes(room.players[0].character));
+  assert.equal(G.viewFor(room, 'a').mode, 'bc');
 });
 
 test('el sorteo es realmente aleatorio: aparecen todos los personajes', () => {
