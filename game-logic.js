@@ -47,7 +47,7 @@ function addPlayer(room, id, name) {
   const token = crypto.randomBytes(12).toString('hex');
   room.players.push({
     id, token, name: clean, ready: false, lives: LIVES, character: null, connected: true,
-    phrase: null, confirmed: [], rejected: [],
+    phrase: null, confirmed: [], rejected: [], discarded: [],
   });
   return { index: room.players.length - 1, token };
 }
@@ -136,6 +136,7 @@ function startRound(room, characterIds, rng = Math.random) {
     p.phrase = null;
     p.confirmed = [];
     p.rejected = [];
+    p.discarded = [];
   });
   if (room.gameMode === 'guess') {
     const [c0, c1] = pickTwo(room.pool, rng);
@@ -300,6 +301,30 @@ function judgePhrase(room, id, correct) {
   return { correct: false, roundOver: false };
 }
 
+// Regalo: en cualquier momento (sea o no tu turno) arrastrás un personaje a tu propio recuadro.
+// Grupo social: lo sumás vos mismo a tu grupo. Adivinar personaje: avisás que NO es tu personaje.
+function gift(room, id, characterId) {
+  requirePlaying(room);
+  const i = indexOf(room, id);
+  if (!room.pool.includes(characterId)) fail('PERSONAJE_INVALIDO');
+  const p = room.players[i];
+  let msg;
+  if (room.gameMode === 'group') {
+    const pend = room.pending;
+    if (p.confirmed.includes(characterId) || p.rejected.includes(characterId) ||
+      (pend && pend.kind === 'propose' && pend.characterId === characterId)) fail('YA_PROPUESTO');
+    p.confirmed.push(characterId);
+    msg = { from: i, kind: 'gift', characterId };
+  } else {
+    if (characterId === p.character) fail('ES_TU_PERSONAJE');
+    if (p.discarded.includes(characterId)) fail('YA_PROPUESTO');
+    p.discarded.push(characterId);
+    msg = { from: i, kind: 'giftNo', characterId };
+  }
+  room.chat.push(msg);
+  return msg;
+}
+
 // Ceder el turno: solo quien tiene el turno y antes de hacer su pregunta.
 function skip(room, id) {
   requirePlaying(room);
@@ -373,7 +398,7 @@ function viewFor(room, id) {
     rematch: room.rematch.slice(),
     players: room.players.map(p => ({
       name: p.name, ready: p.ready, lives: p.lives, connected: p.connected,
-      hasPhrase: !!p.phrase, confirmed: p.confirmed.slice(), rejected: p.rejected.slice(),
+      hasPhrase: !!p.phrase, confirmed: p.confirmed.slice(), rejected: p.rejected.slice(), discarded: p.discarded.slice(),
     })),
     myCharacter: hidden ? null : room.players[me].character,
     myPhrase: hidden ? null : room.players[me].phrase,
@@ -389,6 +414,6 @@ module.exports = {
   ANSWERS, LIVES, GAME_MODES, MAX_PHRASE,
   createRoom, addPlayer, reconnect, setReady, allReady,
   beginChoosing, setDraft, acceptDraft, startRound, setPhrase,
-  ask, answer, guess, propose, verdict, guessPhrase, judgePhrase, skip,
+  ask, answer, guess, propose, verdict, guessPhrase, judgePhrase, skip, gift,
   proposeChange, answerChange, rematchVote, viewFor,
 };

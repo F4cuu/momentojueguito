@@ -64,7 +64,7 @@ Juego web para 2 jugadores tipo "Quién es Quién" con personajes de Black Clove
 
 ### Protocolo WebSocket
 - Mensaje: `{ ev, data, ack? }`. Respuesta con ack: `{ ack, data: { ok, ... } | { error: CODIGO } }`.
-- Eventos con estado (handlers): `createRoom`, `joinRoom` (acepta `token` para reconectar), `ready`, `setDraft`, `acceptDraft`, `setPhrase`, `ask`, `answer`, `skip`, `guess`, `propose`, `verdict`, `guessPhrase`, `judgePhrase`, `proposeChange`, `answerChange`, `rematch`.
+- Eventos con estado (handlers): `createRoom`, `joinRoom` (acepta `token` para reconectar), `ready`, `setDraft`, `acceptDraft`, `setPhrase`, `ask`, `answer`, `skip`, `guess`, `propose`, `verdict`, `gift`, `guessPhrase`, `judgePhrase`, `proposeChange`, `answerChange`, `rematch`.
 - Servidor → cliente: `state` (resultado de `viewFor`), `guessResult`, `proposalResult`.
 - Eventos efímeros reenviados tal cual al rival (RELAY, sin validar ni tocar estado): `dragMove`, `dragEnd`, `zoneDrop`, `zoneCancel`, `boardStroke`, `boardClear`, `boardOpen`, `strikes`. Todo lo que llega por RELAY es input no confiable: validarlo/escaparlo en el cliente.
 
@@ -74,6 +74,8 @@ Juego web para 2 jugadores tipo "Quién es Quién" con personajes de Black Clove
 - `room.round` sube en cada ronda nueva; el cliente resetea cartas/pizarrón/tachados cuando cambia.
 - **Adivinar personaje**: cada jugador sortea por separado (**puede tocar el mismo personaje**, intencional). 2 vidas (`LIVES`). Adivinar solo en tu turno y antes de preguntar; acierto gana, error resta vida; con 0 vidas gana el rival.
 - **Grupo social**: en `setup` cada uno escribe su frase secreta (≤ 80). En tu turno: preguntar, `propose` (arrastrar personaje al "?" del rival → `awaiting = 'verdict'` → el rival hace `verdict`; queda en `confirmed`/`rejected` del dueño del grupo y pasa el turno) o `guessPhrase` (→ `phraseVerdict` → el rival hace `judgePhrase`; correcta gana la ronda, si no pasa el turno). Sin vidas.
+- **Regalos** (`gift`, en `playing`, sea o no tu turno, no pasa el turno): arrastrar un personaje a tu propio recuadro. En grupo social lo suma a tu `confirmed`. En adivinar personaje lo suma a tu `discarded` ("no es mi personaje"; el propio da `ES_TU_PERSONAJE`). El rival lo ve marcado en su galería.
+- Grupo social: un personaje rechazado se tacha **solo en la galería de quien lo propuso** (no se muestra en las tablas laterales).
 - **Cambio en plena partida** (`setup`/`playing`/`roundOver`): `proposeChange` guarda `room.change`; el rival `answerChange(yes)`. Aceptar arranca ronda nueva con la nueva config y conserva el marcador; `yes:false` rechaza (o cancela si lo manda quien propuso).
 - Pregunta ≤ 200 caracteres; respuestas `Sí` | `No` | `No sé`; nombre ≤ 20. Responder pasa el turno. `skip` (Ceder turno) solo antes de preguntar.
 - La ronda siguiente la empieza el perdedor (`nextStarter`). Revancha: si alguno vota "no" → `ended`.
@@ -92,5 +94,6 @@ Juego web para 2 jugadores tipo "Quién es Quién" con personajes de Black Clove
 ### Notas conocidas
 - La sección "Cómo se juega" del README menciona notas compartidas y "personaje distinto"; ambas cosas cambiaron (ver "Novedades" del README).
 - Que dos jugadores tengan el mismo personaje es intencional. Por eso se sacó de los tests la aserción de revancha que exigía personajes distintos: fallaba al azar.
-- `PERSONAJES/DND/Kako.png` y `Kiko.png` pesan exactamente lo mismo (539954 bytes): probablemente sean la misma imagen.
+- `PERSONAJES/DND/Kako.png` y `Kiko.png` son la misma imagen (mismo peso y fecha); igual con `Tirin Tirin Cantin Pompin (IC)` y `(LT)`. `Jayce.jpg` y `Jayce.png` quedan como "Jayce" y "Jayce (2)".
+- El pool D&D se regenera completo desde `PERSONAJES/DND` (ids `dnd-<slug>`); si se cambian las imágenes originales hay que volver a generar las `.webp` y `characters.json`, si no el juego sigue mostrando las viejas.
 - Salas y estado viven en memoria: un reinicio del server (o que Render lo duerma) borra todas las partidas.

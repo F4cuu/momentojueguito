@@ -279,3 +279,9 @@ input:focus, textarea:focus { outline: 2px solid var(--gold-d); border-color: tr
 .rev-phrases { display: flex; gap: 14px; justify-content: center; margin: 14px 0; }
 .rev-phrases div { flex: 1; padding: 12px; border: 1px solid var(--gold-d); border-radius: 10px; font: 700 18px "Cinzel", Georgia, serif; color: var(--gold); }
 .rev-phrases small { display: block; font: 400 12px system-ui, sans-serif; color: var(--muted); margin-bottom: 4px; }
+
+/* ---------- Regalos ---------- */
+.box.mine.hot { border-color: #6be38d; box-shadow: 0 0 18px rgba(107, 227, 141, 0.55); }
+.strikes .sk.gift { border: 2px solid #6be38d; }
+.strikes .sk.gift::after { color: #6be38d; }
+.msg.sys.gift { background: #0f2a1a; border-color: #3fae6a; }

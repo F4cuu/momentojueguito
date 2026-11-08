@@ -197,12 +197,22 @@ const Ragdoll = (() => {
       if (!dragging) return false;
       return inside(dragging.b.x, dragging.b.y, cfg.zoneRect(cfg.zoneSide()), 20);
     },
-    // Suelta la carta: sobre el "?" del rival (y es mi turno) queda fija; exactamente sobre su lugar
+    overOwn() {
+      if (!dragging || !cfg.canGift || !cfg.canGift()) return false;
+      return inside(dragging.b.x, dragging.b.y, cfg.zoneRect(cfg.mySide()), 20);
+    },
+    // Suelta la carta: sobre mi propio recuadro es un regalo (vuelve a la galería); sobre el "?" del rival (y es mi turno) queda fija; exactamente sobre su lugar
     // en la galería vuelve a él; en cualquier otro sitio cae al borde inferior de la página.
     release() {
       const c = dragging;
       if (!c) return null;
       dragging = null;
+      if (cfg.canGift && cfg.canGift() && inside(c.b.x, c.b.y, cfg.zoneRect(cfg.mySide()), 20)) {
+        c.local = false;
+        setMode(c, 'home');
+        cfg.send('dragEnd', { id: c.id, mode: 'home' });
+        return { id: c.id, where: 'own' };
+      }
       const side = cfg.zoneSide();
       const over = inside(c.b.x, c.b.y, cfg.zoneRect(side), 20);
       if (over && cfg.canGuess()) {

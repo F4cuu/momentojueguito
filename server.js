@@ -123,6 +123,7 @@ function createServer() {
         room.players.forEach(p => send(p.id, 'proposalResult', r));
         return r;
       }, reply),
+      gift: ({ characterId } = {}, reply) => act(() => G.gift(room, id, characterId), reply),
       guessPhrase: ({ text } = {}, reply) => act(() => G.guessPhrase(room, id, text), reply),
       judgePhrase: ({ correct } = {}, reply) => act(() => G.judgePhrase(room, id, correct), reply),
       proposeChange: (cfg, reply) => act(() => G.proposeChange(room, id, cfg, POOLS), reply),

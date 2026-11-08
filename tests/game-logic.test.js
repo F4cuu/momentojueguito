@@ -352,3 +352,35 @@ test('las notas ya no existen en el estado', () => {
   assert.equal(v.notes, undefined);
   assert.equal(G.setNotes, undefined);
 });
+
+test('regalo en grupo social: en cualquier momento, sin turno, va directo al propio grupo', () => {
+  const room = groupPlaying();
+  G.setPhrase(room, 'a', 'pelo negro');
+  G.setPhrase(room, 'b', 'murieron');
+  const t = room.turn, rival = idAt(room, 1 - t);
+  const turn = room.turn;
+  G.gift(room, rival, 'p');
+  assert.deepEqual(room.players[1 - t].confirmed, ['p']);
+  assert.equal(room.turn, turn); // no cambia el turno
+  assert.equal(room.chat.at(-1).kind, 'gift');
+  assert.throws(() => G.gift(room, rival, 'p'), /YA_PROPUESTO/);
+  // el rival ya no puede proponer uno que fue regalado
+  assert.throws(() => G.propose(room, idAt(room, t), 'p'), /YA_PROPUESTO/);
+  // no se puede regalar el que está esperando veredicto
+  G.propose(room, idAt(room, t), 'x');
+  assert.throws(() => G.gift(room, rival, 'x'), /YA_PROPUESTO/);
+});
+
+test('regalo en adivinar personaje: descarta "no es mi personaje", nunca el propio', () => {
+  const { room } = started();
+  const t = room.turn, other = idAt(room, 1 - t);
+  const own = room.players[1 - t].character;
+  const notMine = CHARS.find(c => c !== own);
+  assert.throws(() => G.gift(room, other, own), /ES_TU_PERSONAJE/);
+  G.gift(room, other, notMine);
+  assert.deepEqual(room.players[1 - t].discarded, [notMine]);
+  assert.equal(room.turn, t);
+  assert.throws(() => G.gift(room, other, notMine), /YA_PROPUESTO/);
+  assert.deepEqual(G.viewFor(room, idAt(room, t)).players[1 - t].discarded, [notMine]);
+  assert.throws(() => G.gift(room, other, 'zzz'), /PERSONAJE_INVALIDO/);
+});

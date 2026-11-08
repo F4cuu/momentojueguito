@@ -18,6 +18,7 @@
     MODO_INCORRECTO: 'Eso no se puede hacer en este modo de juego.',
     SIN_PROPUESTA: 'Ya no hay ninguna propuesta pendiente.',
     NO_PUEDES_RESPONDER: 'Ahora no podés responder eso.',
+    ES_TU_PERSONAJE: 'Ese es tu personaje: no lo podés descartar.',
   };
   const POOL_NAMES = { bc: 'Black Clover', dnd: 'Torre (D&D)', jjk: 'Jujutsu Kaisen' };
   const GM_NAMES = { guess: 'Adivinar personaje', group: 'Grupo social' };
@@ -127,11 +128,15 @@
   function updateAway() {
     const away = new Set(Ragdoll.ids());
     // grupo social: marco lo que ya sé del grupo del rival
-    const opp = isGroup() && state.players[1 - state.me];
-    const yes = new Set(opp ? opp.confirmed : []), no = new Set(opp ? opp.rejected : []);
+    // grupo social: ✔ los del grupo del rival; tachados (solo para mí) los que me rechazó.
+    // adivinar personaje: ✕ los que el rival regaló como "no es mi personaje".
+    const opp = state && state.players[1 - state.me];
+    const yes = new Set(opp && isGroup() ? opp.confirmed : []);
+    const no = new Set(opp && !isGroup() ? opp.discarded || [] : []);
+    const rejected = new Set(opp && isGroup() ? opp.rejected : []);
     document.querySelectorAll('.gcard').forEach(el => {
       el.classList.toggle('away', away.has(el.dataset.id));
-      el.classList.toggle('struck', struck.has(el.dataset.id));
+      el.classList.toggle('struck', struck.has(el.dataset.id) || rejected.has(el.dataset.id));
       el.classList.toggle('gyes', yes.has(el.dataset.id));
       el.classList.toggle('gno', no.has(el.dataset.id));
     });
@@ -157,10 +162,9 @@
       // tabla del grupo de cada jugador: los validados (y abajo los rechazados)
       [0, 1].forEach(i => {
         const p = state.players[i];
-        const yes = p.confirmed.filter(id => charMap[id]), no = p.rejected.filter(id => charMap[id]);
-        $('strikes' + i).innerHTML = yes.map(id => thumb(id, 'ok')).join('') +
-          (no.length ? '<div class="sk-sep">No pertenecen</div>' + no.map(id => thumb(id, '')).join('') : '');
-        $('stt' + i).textContent = yes.length || no.length ? 'En el grupo (' + yes.length + ')' : 'Grupo vacío';
+        const yes = p.confirmed.filter(id => charMap[id]);
+        $('strikes' + i).innerHTML = yes.map(id => thumb(id, 'ok')).join('');
+        $('stt' + i).textContent = yes.length ? 'En el grupo (' + yes.length + ')' : 'Grupo vacío';
       });
       return;
     }
@@ -171,6 +175,13 @@
     };
     fill(state.me, [...struck]);
     fill(1 - state.me, rivalStruck);
+    // descartes regalados ("no es mi personaje"), visibles para los dos
+    [0, 1].forEach(i => {
+      const g = (state.players[i].discarded || []).filter(id => charMap[id]);
+      if (!g.length) return;
+      $('strikes' + i).insertAdjacentHTML('afterbegin', '<div class="sk-sep">Regaló: no es (' + g.length + ')</div>' +
+        g.map(id => thumb(id, 'gift')).join('') + '<div class="sk-sep"></div>');
+    });
   }
 
   function startGrab(e, id) {
@@ -196,13 +207,21 @@
     if (!Ragdoll.isDragging()) return;
     Ragdoll.setTarget(e.clientX, e.clientY);
     $('box' + targetSide()).classList.toggle('hot', Ragdoll.overZone() && canGuess());
+    if (state) $('box' + state.me).classList.toggle('hot', Ragdoll.overOwn());
   });
   window.addEventListener('mouseup', e => {
     if (e.button !== 2 || !Ragdoll.isDragging()) return;
     document.querySelectorAll('.box').forEach(b => b.classList.remove('hot'));
     const res = Ragdoll.release();
     if (!res) return;
-    if (res.where === 'zone') zoneLocal = res.id;
+    if (res.where === 'own') {
+      const id = res.id;
+      Net.send('gift', { characterId: id }, r => {
+        if (r.error) return toast(errText(r.error));
+        Sfx.good();
+        toast(isGroup() ? 'Regalaste a ' + charMap[id].name + ': ahora está en tu grupo.' : 'Regalaste: ' + charMap[id].name + ' no es tu personaje.');
+      });
+    } else if (res.where === 'zone') zoneLocal = res.id;
     else if (res.wasOverZone) toast('Solo podés adivinar en tu turno, antes de preguntar.');
     updateZoneUI();
   });
@@ -440,7 +459,8 @@
     $('verdictBtns').classList.toggle('hidden', !(playing && !myTurn && s.awaiting === 'verdict'));
     $('phraseBtns').classList.toggle('hidden', !(playing && !myTurn && s.awaiting === 'phraseVerdict'));
     $('cfgInfo').textContent = cfgText(s);
-    $('galhint').textContent = 'Clic izquierdo: tachar · Clic derecho (mantener): agarrar y arrastrar · Soltá en el “?” del rival para ' + (group ? 'proponerlo para su grupo' : 'adivinar');
+    $('galhint').textContent = 'Clic izquierdo: tachar · Clic derecho (mantener): arrastrar · Al “?” del rival: ' + (group ? 'proponer' : 'adivinar') +
+      ' · A tu recuadro: regalar ' + (group ? '(lo sumás a tu grupo)' : '(“no es mi personaje”)');
     $('btnChange').disabled = !!s.change || s.phase === 'ended';
 
     // grupo social: escribir la frase secreta
@@ -473,6 +493,11 @@
       if (m.kind === 'propose') {
         const c = charMap[m.characterId];
         return '<div class="msg sys' + (m.from === s.me ? ' mine' : '') + '"><small>' + who + ' propone para el grupo</small>' +
+          (c ? '<img src="' + esc(c.file) + '" alt=""> ' + esc(c.name) : '?') + '</div>';
+      }
+      if (m.kind === 'gift' || m.kind === 'giftNo') {
+        const c = charMap[m.characterId];
+        return '<div class="msg sys gift"><small>' + who + (m.kind === 'gift' ? ' regala para su grupo' : ' regala: NO es su personaje') + '</small>' +
           (c ? '<img src="' + esc(c.file) + '" alt=""> ' + esc(c.name) : '?') + '</div>';
       }
       if (m.kind === 'verdict') return '<div class="msg ans ' + (m.text === 'Válido' ? 'si' : 'no') + '">' + who + ': ' + esc(m.text) + '</div>';
@@ -578,7 +603,11 @@
   Net.on('proposalResult', ({ by, characterId, valid }) => {
     const mine = state && by === state.me;
     if (valid) { Ragdoll.sendHome(characterId); Sfx.good(); } else { Ragdoll.eject(characterId, 1 - by); Sfx.bad(); }
-    if (mine) { zoneLocal = null; guessPending = false; }
+    if (mine) {
+      zoneLocal = null;
+      guessPending = false;
+      if (!valid) { struck.add(characterId); updateAway(); } // tachado solo en mi galería
+    }
     updateZoneUI();
   });
   Net.on('guessResult', ({ by, characterId, correct }) => {
@@ -632,6 +661,7 @@
       },
       galleryRect: () => $('gallery').getBoundingClientRect(),
       canGuess,
+      canGift: () => !!state && state.phase === 'playing',
       send: (ev, data) => Net.send(ev, data),
       onChange: () => { updateAway(); updateZoneUI(); },
     });

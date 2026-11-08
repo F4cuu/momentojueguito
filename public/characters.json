@@ -498,21 +498,51 @@
   "pool": "bc"
  },
  {
-  "id": "dnd-antonito",
-  "name": "Antoñito",
-  "file": "personajes/dnd-antonito.webp",
+  "id": "dnd-aaron-gutierrez",
+  "name": "Aaron Gutierrez",
+  "file": "personajes/dnd-aaron-gutierrez.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-arkhon",
-  "name": "Arkhon",
-  "file": "personajes/dnd-arkhon.webp",
+  "id": "dnd-alice-morne",
+  "name": "Alice Morne",
+  "file": "personajes/dnd-alice-morne.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-balatro",
-  "name": "Balatro",
-  "file": "personajes/dnd-balatro.webp",
+  "id": "dnd-altharea-valtheris",
+  "name": "Altharea Valtheris",
+  "file": "personajes/dnd-altharea-valtheris.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-amira-solari",
+  "name": "Amira Solari",
+  "file": "personajes/dnd-amira-solari.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-ampala",
+  "name": "Ampala",
+  "file": "personajes/dnd-ampala.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-archibald-fulgur",
+  "name": "Archibald Fulgur",
+  "file": "personajes/dnd-archibald-fulgur.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-arkhon-draethir",
+  "name": "Arkhon Draethir",
+  "file": "personajes/dnd-arkhon-draethir.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-azatha",
+  "name": "Azatha",
+  "file": "personajes/dnd-azatha.webp",
   "pool": "dnd"
  },
  {
@@ -534,21 +564,27 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-brannor",
-  "name": "Brannor",
-  "file": "personajes/dnd-brannor.webp",
+  "id": "dnd-birel-brant",
+  "name": "Birel Brant",
+  "file": "personajes/dnd-birel-brant.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-cachito",
-  "name": "Cachito",
-  "file": "personajes/dnd-cachito.webp",
+  "id": "dnd-brannor-ashpeak",
+  "name": "Brannor Ashpeak",
+  "file": "personajes/dnd-brannor-ashpeak.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-caelan",
-  "name": "Caelan",
-  "file": "personajes/dnd-caelan.webp",
+  "id": "dnd-cachito-fornik",
+  "name": "Cachito Fornik",
+  "file": "personajes/dnd-cachito-fornik.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-caelan-valtheris",
+  "name": "Caelan Valtheris",
+  "file": "personajes/dnd-caelan-valtheris.webp",
   "pool": "dnd"
  },
  {
@@ -558,33 +594,111 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-catta",
-  "name": "Catta",
-  "file": "personajes/dnd-catta.webp",
+  "id": "dnd-catcher",
+  "name": "Catcher",
+  "file": "personajes/dnd-catcher.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-cloud",
-  "name": "Cloud",
-  "file": "personajes/dnd-cloud.webp",
+  "id": "dnd-clark-roek",
+  "name": "Clark Roek",
+  "file": "personajes/dnd-clark-roek.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-eidan",
-  "name": "Eidan",
-  "file": "personajes/dnd-eidan.webp",
+  "id": "dnd-claudia",
+  "name": "Claudia",
+  "file": "personajes/dnd-claudia.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-erik-thorn",
-  "name": "Erik Thorn",
-  "file": "personajes/dnd-erik-thorn.webp",
+  "id": "dnd-cloude-strife",
+  "name": "Cloude Strife",
+  "file": "personajes/dnd-cloude-strife.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-eryndor",
-  "name": "Eryndor",
-  "file": "personajes/dnd-eryndor.webp",
+  "id": "dnd-connor-chapas",
+  "name": "Connor Chapas",
+  "file": "personajes/dnd-connor-chapas.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-crow",
+  "name": "Crow",
+  "file": "personajes/dnd-crow.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-dane-moretti",
+  "name": "Dane Moretti",
+  "file": "personajes/dnd-dane-moretti.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-deli",
+  "name": "Deli",
+  "file": "personajes/dnd-deli.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-dillia-shade",
+  "name": "Dillia Shade",
+  "file": "personajes/dnd-dillia-shade.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-diosa-alma",
+  "name": "Diosa Alma",
+  "file": "personajes/dnd-diosa-alma.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-diosa-muerte",
+  "name": "Diosa Muerte",
+  "file": "personajes/dnd-diosa-muerte.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-diosa-vida",
+  "name": "Diosa Vida",
+  "file": "personajes/dnd-diosa-vida.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-elara-virell",
+  "name": "Elara Virell",
+  "file": "personajes/dnd-elara-virell.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-elina-voss",
+  "name": "Elina Voss",
+  "file": "personajes/dnd-elina-voss.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-eric-thorne",
+  "name": "Eric Thorne",
+  "file": "personajes/dnd-eric-thorne.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-eryk-valtheris",
+  "name": "Eryk Valtheris",
+  "file": "personajes/dnd-eryk-valtheris.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-eryndor-ashforge",
+  "name": "Eryndor Ashforge",
+  "file": "personajes/dnd-eryndor-ashforge.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-evelynn-velvet",
+  "name": "Evelynn Velvet",
+  "file": "personajes/dnd-evelynn-velvet.webp",
   "pool": "dnd"
  },
  {
@@ -594,27 +708,93 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-finstring",
-  "name": "Finstring",
-  "file": "personajes/dnd-finstring.webp",
+  "id": "dnd-finstring-ashforge",
+  "name": "Finstring Ashforge",
+  "file": "personajes/dnd-finstring-ashforge.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-huevanez",
-  "name": "Huevañez",
-  "file": "personajes/dnd-huevanez.webp",
+  "id": "dnd-futaba-sakura",
+  "name": "Futaba Sakura",
+  "file": "personajes/dnd-futaba-sakura.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-ignis",
-  "name": "Ignis",
-  "file": "personajes/dnd-ignis.webp",
+  "id": "dnd-gazpacho-pene-pancho",
+  "name": "Gazpacho Pene pancho",
+  "file": "personajes/dnd-gazpacho-pene-pancho.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-kaelan",
-  "name": "Kaelan",
-  "file": "personajes/dnd-kaelan.webp",
+  "id": "dnd-gerald",
+  "name": "Gerald",
+  "file": "personajes/dnd-gerald.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-gerwin-bermer-iii",
+  "name": "Gerwin Bermer III",
+  "file": "personajes/dnd-gerwin-bermer-iii.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-gyk",
+  "name": "Gyk",
+  "file": "personajes/dnd-gyk.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-hernesto",
+  "name": "Hernesto",
+  "file": "personajes/dnd-hernesto.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-hilda-stonehorn",
+  "name": "Hilda Stonehorn",
+  "file": "personajes/dnd-hilda-stonehorn.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-horacio",
+  "name": "Horacio",
+  "file": "personajes/dnd-horacio.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-ignis-stupeo-scientia",
+  "name": "Ignis Stupeo Scientia",
+  "file": "personajes/dnd-ignis-stupeo-scientia.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-iris-smith",
+  "name": "Iris Smith",
+  "file": "personajes/dnd-iris-smith.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-jayce",
+  "name": "Jayce",
+  "file": "personajes/dnd-jayce.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-jayce-2",
+  "name": "Jayce (2)",
+  "file": "personajes/dnd-jayce-2.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-kaelan-phalthor-de-morne",
+  "name": "Kaelan Phalthor de Morne",
+  "file": "personajes/dnd-kaelan-phalthor-de-morne.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-kako",
+  "name": "Kako",
+  "file": "personajes/dnd-kako.webp",
   "pool": "dnd"
  },
  {
@@ -624,9 +804,21 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-kiara",
-  "name": "Kiara",
-  "file": "personajes/dnd-kiara.webp",
+  "id": "dnd-kiara-smith",
+  "name": "Kiara Smith",
+  "file": "personajes/dnd-kiara-smith.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-kiko",
+  "name": "Kiko",
+  "file": "personajes/dnd-kiko.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-kirk",
+  "name": "Kirk",
+  "file": "personajes/dnd-kirk.webp",
   "pool": "dnd"
  },
  {
@@ -636,9 +828,27 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-lia",
-  "name": "Lia",
-  "file": "personajes/dnd-lia.webp",
+  "id": "dnd-kragg-escamafina",
+  "name": "Kragg Escamafina",
+  "file": "personajes/dnd-kragg-escamafina.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-leonis-augustus-ravenheart",
+  "name": "Leonis Augustus Ravenheart",
+  "file": "personajes/dnd-leonis-augustus-ravenheart.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-lia-valtheris",
+  "name": "Lia Valtheris",
+  "file": "personajes/dnd-lia-valtheris.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-liam-frontier",
+  "name": "Liam Frontier",
+  "file": "personajes/dnd-liam-frontier.webp",
   "pool": "dnd"
  },
  {
@@ -655,7 +865,7 @@
  },
  {
   "id": "dnd-mano-negra",
-  "name": "Mano Negra",
+  "name": "Mano negra",
   "file": "personajes/dnd-mano-negra.webp",
   "pool": "dnd"
  },
@@ -666,15 +876,39 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-noctis",
-  "name": "Noctis",
-  "file": "personajes/dnd-noctis.webp",
+  "id": "dnd-marisol-morne",
+  "name": "Marisol Morne",
+  "file": "personajes/dnd-marisol-morne.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-pingas",
-  "name": "Pingas",
-  "file": "personajes/dnd-pingas.webp",
+  "id": "dnd-mascara-plateada",
+  "name": "Máscara Plateada",
+  "file": "personajes/dnd-mascara-plateada.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-nara-voss",
+  "name": "Nara Voss",
+  "file": "personajes/dnd-nara-voss.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-noctis-caelun",
+  "name": "Noctis Caelun",
+  "file": "personajes/dnd-noctis-caelun.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-oscar-lopez",
+  "name": "Oscar Lopez",
+  "file": "personajes/dnd-oscar-lopez.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-pancracio",
+  "name": "Pancracio",
+  "file": "personajes/dnd-pancracio.webp",
   "pool": "dnd"
  },
  {
@@ -684,9 +918,45 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-rhazustion-ii",
-  "name": "Rhazustión II",
-  "file": "personajes/dnd-rhazustion-ii.webp",
+  "id": "dnd-porton",
+  "name": "Portón",
+  "file": "personajes/dnd-porton.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-rachel",
+  "name": "Rachel",
+  "file": "personajes/dnd-rachel.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-rafael-dartois",
+  "name": "Rafael Dartois",
+  "file": "personajes/dnd-rafael-dartois.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-raiden",
+  "name": "Raiden",
+  "file": "personajes/dnd-raiden.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-raven",
+  "name": "Raven",
+  "file": "personajes/dnd-raven.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-rhazustion-bonbon-kiary-smith-i",
+  "name": "Rhazustión Bonbon Kiary Smith I",
+  "file": "personajes/dnd-rhazustion-bonbon-kiary-smith-i.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-rhazustion-bonbon-kiary-valtheris-smith-ii",
+  "name": "Rhazustión Bonbon Kiary Valtheris Smith II",
+  "file": "personajes/dnd-rhazustion-bonbon-kiary-valtheris-smith-ii.webp",
   "pool": "dnd"
  },
  {
@@ -702,9 +972,27 @@
   "pool": "dnd"
  },
  {
+  "id": "dnd-sarah-malkov",
+  "name": "Sarah Malkov",
+  "file": "personajes/dnd-sarah-malkov.webp",
+  "pool": "dnd"
+ },
+ {
   "id": "dnd-sebastian-tantan",
   "name": "Sebastián Tantan",
   "file": "personajes/dnd-sebastian-tantan.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-selene",
+  "name": "Selene",
+  "file": "personajes/dnd-selene.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-seraphis-naja",
+  "name": "Seraphis Naja",
+  "file": "personajes/dnd-seraphis-naja.webp",
   "pool": "dnd"
  },
  {
@@ -720,9 +1008,33 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-sylvar",
-  "name": "Sylvar",
-  "file": "personajes/dnd-sylvar.webp",
+  "id": "dnd-shiro-amayuri",
+  "name": "Shiro Amayuri",
+  "file": "personajes/dnd-shiro-amayuri.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-splinter",
+  "name": "Splinter",
+  "file": "personajes/dnd-splinter.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-spora-cordi",
+  "name": "Spora Cordi",
+  "file": "personajes/dnd-spora-cordi.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-sylvanne-everwind",
+  "name": "Sylvanne Everwind",
+  "file": "personajes/dnd-sylvanne-everwind.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-sylvar-everwind",
+  "name": "Sylvar Everwind",
+  "file": "personajes/dnd-sylvar-everwind.webp",
   "pool": "dnd"
  },
  {
@@ -732,9 +1044,33 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-tirin",
-  "name": "Tirín",
-  "file": "personajes/dnd-tirin.webp",
+  "id": "dnd-tirin-tirin-cantin-pompin-hd",
+  "name": "Tirin Tirin Cantin Pompin (HD)",
+  "file": "personajes/dnd-tirin-tirin-cantin-pompin-hd.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-tirin-tirin-cantin-pompin-ic",
+  "name": "Tirin Tirin Cantin Pompin (IC)",
+  "file": "personajes/dnd-tirin-tirin-cantin-pompin-ic.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-tirin-tirin-cantin-pompin-lt",
+  "name": "Tirin Tirin Cantin Pompin (LT)",
+  "file": "personajes/dnd-tirin-tirin-cantin-pompin-lt.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-vanessa",
+  "name": "Vanessa",
+  "file": "personajes/dnd-vanessa.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-veyra-vael-cantin-pompin",
+  "name": "Veyra Vael Cantin Pompin",
+  "file": "personajes/dnd-veyra-vael-cantin-pompin.webp",
   "pool": "dnd"
  },
  {
@@ -744,15 +1080,27 @@
   "pool": "dnd"
  },
  {
-  "id": "dnd-vida",
-  "name": "Vida",
-  "file": "personajes/dnd-vida.webp",
+  "id": "dnd-viktor-riemann",
+  "name": "Viktor Riemann",
+  "file": "personajes/dnd-viktor-riemann.webp",
   "pool": "dnd"
  },
  {
-  "id": "dnd-viktor",
-  "name": "Viktor",
-  "file": "personajes/dnd-viktor.webp",
+  "id": "dnd-vincent-armand",
+  "name": "Vincent Armand",
+  "file": "personajes/dnd-vincent-armand.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-vlada-romanov",
+  "name": "Vlada Romanov",
+  "file": "personajes/dnd-vlada-romanov.webp",
+  "pool": "dnd"
+ },
+ {
+  "id": "dnd-yoshua",
+  "name": "Yoshua",
+  "file": "personajes/dnd-yoshua.webp",
   "pool": "dnd"
  },
  {
