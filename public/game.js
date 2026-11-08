@@ -642,7 +642,12 @@
     const q = new URLSearchParams(location.search).get('sala');
     if (q) $('codeInput').value = q.toUpperCase().slice(0, 4);
     try {
-      chars = await (await fetch('characters.json')).json();
+      // ?v=<hash de characters.json>: si se regeneran las imágenes cambia la URL y el navegador no usa las viejas en caché
+      const txt = await (await fetch('characters.json', { cache: 'no-cache' })).text();
+      let h = 0;
+      for (let i = 0; i < txt.length; i++) h = (h * 31 + txt.charCodeAt(i)) | 0;
+      const v = (h >>> 0).toString(36);
+      chars = JSON.parse(txt).map(c => ({ ...c, file: c.file + '?v=' + v }));
     } catch (e) {
       setHomeError('No se pudo cargar la lista de personajes. Recargá la página.');
       chars = [];
