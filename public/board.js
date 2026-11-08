@@ -1,24 +1,25 @@
 'use strict';
-// Pizarrón privado y movible. Se asoma apenas por el costado de la pantalla del jugador
-// (J1 izquierda, J2 derecha); con clic se lo agarra y se lo arrastra; adentro se dibuja.
+// Pizarrón compartido y movible. Se asoma apenas por el borde superior de la pantalla; con clic se lo
+// agarra y se lo arrastra; adentro dibujan los dos jugadores a la vez (los trazos se retransmiten).
 const Board = (() => {
   const COLORS = ['#ffffff', '#ffd84d', '#ff6b6b', '#5ec8ff', '#6be38d', '#ff9f43', '#ff7ad9', '#b388ff'];
   const DOCK_VISIBLE = 14;  // px que asoma en reposo
   const PEEK_VISIBLE = 40;  // px que asoma al acercar el cursor
   const CANVAS_W = 520, CANVAS_H = 300;
 
-  let el, canvas, ctx, side = 'left', mode = 'docked', peek = false, visible = false;
+  let el, canvas, ctx, send = () => {}, mode = 'docked', peek = false, visible = false;
   let drag = null, drawing = false, last = null;
   let color = COLORS[0], size = 4, erasing = false;
 
   const $ = id => document.getElementById(id);
 
   const totalW = () => el.offsetWidth;
-  function dockLeft() {
+  const totalH = () => el.offsetHeight;
+  function applyDock() {
     const show = peek ? PEEK_VISIBLE : DOCK_VISIBLE;
-    return side === 'left' ? -(totalW() - show) : innerWidth - show;
+    el.style.left = Math.round((innerWidth - totalW()) / 2) + 'px';
+    el.style.top = -(totalH() - show) + 'px';
   }
-  function applyDock() { el.style.left = dockLeft() + 'px'; }
 
   function clampOpen() {
     const w = totalW();
@@ -28,7 +29,8 @@ const Board = (() => {
     el.style.top = top + 'px';
   }
 
-  function dock() {
+  function dock(fromRemote) {
+    if (!fromRemote && mode === 'open') send('boardOpen', { open: false });
     mode = 'docked';
     peek = false;
     el.classList.remove('open', 'peek');
@@ -41,6 +43,7 @@ const Board = (() => {
     if (mode === 'docked') {
       // se abre siguiendo al cursor
       mode = 'open';
+      send('boardOpen', { open: true });
       el.classList.add('open');
       el.classList.remove('peek');
       drag = { dx: totalW() / 2, dy: 22 };
@@ -56,7 +59,7 @@ const Board = (() => {
     drag = null;
     el.classList.remove('dragging');
     const r = el.getBoundingClientRect();
-    const nearHome = side === 'left' ? r.right < 90 : r.left > innerWidth - 90;
+    const nearHome = r.bottom < 90;
     if (nearHome) dock(); else clampOpen();
   }
 
@@ -66,16 +69,20 @@ const Board = (() => {
     const k = CANVAS_W / r.width;
     return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k };
   }
-  function stroke(a, b) {
-    ctx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
-    ctx.strokeStyle = color;
-    ctx.lineWidth = erasing ? size * 2.5 : size;
+  function stroke(a, b, st) {
+    st = st || { c: color, s: size, e: erasing };
+    ctx.globalCompositeOperation = st.e ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = st.c;
+    ctx.lineWidth = st.e ? st.s * 2.5 : st.s;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(b.x, b.y);
     ctx.stroke();
+  }
+  function emit(a, p) {
+    send('boardStroke', { a, b: p, c: color, s: size, e: erasing });
   }
   function updateDot() {
     const d = $('bdot');
@@ -91,7 +98,8 @@ const Board = (() => {
     updateDot();
   }
 
-  function init() {
+  function init(opts) {
+    if (opts && opts.send) send = opts.send;
     el = $('board');
     canvas = $('bcanvas');
     const dpr = window.devicePixelRatio || 1;
@@ -117,9 +125,14 @@ const Board = (() => {
     });
     $('bsize').oninput = e => { size = +e.target.value; updateDot(); };
     $('beraser').onclick = () => setTool(!erasing);
-    $('bclear').onclick = () => clear();
-    $('bclose').onclick = () => dock();
-    $('bexpand').onclick = () => { el.classList.toggle('big'); clampOpen(); };
+    $('bclear').onclick = () => { clear(); send('boardClear', {}); };
+    $('bclose').onclick = () => dock(false);
+    $('bexpand').onclick = () => {
+      el.classList.toggle('big');
+      const w = totalW(), h = totalH();
+      el.style.left = Math.max(8, Math.min(parseFloat(el.style.left) || 0, innerWidth - w - 8)) + 'px';
+      el.style.top = Math.max(8, Math.min(parseFloat(el.style.top) || 0, innerHeight - h - 8)) + 'px';
+    };
     updateDot();
 
     // arrastrar el pizarrón: desde la solapa o desde el título
@@ -134,7 +147,7 @@ const Board = (() => {
         return;
       }
       if (!visible || mode !== 'docked') return;
-      const near = side === 'left' ? e.clientX < 40 : e.clientX > innerWidth - 40;
+      const near = e.clientY < 40 && Math.abs(e.clientX - innerWidth / 2) < 330;
       const want = near || el.contains(e.target);
       if (want !== peek) {
         peek = want;
@@ -152,11 +165,13 @@ const Board = (() => {
       canvas.setPointerCapture(e.pointerId);
       last = pos(e);
       stroke(last, last);
+      emit(last, last);
     });
     canvas.addEventListener('pointermove', e => {
       if (!drawing) return;
       const p = pos(e);
       stroke(last, p);
+      emit(last, p);
       last = p;
     });
     const stop = () => { drawing = false; last = null; };
@@ -174,12 +189,21 @@ const Board = (() => {
   return {
     init,
     clear,
-    // 'left' para el Jugador 1 y 'right' para el Jugador 2
-    setSide(s) {
-      if (s === side && el.classList.contains('right') === (s === 'right')) return;
-      side = s;
-      el.classList.toggle('right', side === 'right');
-      if (mode === 'docked') applyDock();
+    isOpen: () => mode === 'open',
+    // eventos que llegan del otro jugador
+    remoteStroke(d) {
+      if (!d || !d.a || !d.b) return;
+      stroke(d.a, d.b, { c: d.c, s: d.s, e: d.e });
+    },
+    remoteOpen(open) {
+      if (open && mode === 'docked') {
+        mode = 'open';
+        peek = false;
+        el.classList.remove('peek');
+        el.classList.add('open');
+        el.style.left = Math.round((innerWidth - totalW()) / 2) + 'px';
+        el.style.top = '70px';
+      } else if (!open && mode === 'open') dock(true);
     },
     setVisible(v) {
       visible = v;

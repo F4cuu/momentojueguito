@@ -278,8 +278,6 @@
     }).join('');
     log.scrollTop = log.scrollHeight;
 
-    // el pizarrón vive del lado del propio jugador: J1 a la izquierda, J2 a la derecha
-    Board.setSide(s.me === 0 ? 'left' : 'right');
     Board.setVisible(true);
 
     updateAway();
@@ -348,6 +346,9 @@
     render();
   });
   Net.on('dragMove', d => Ragdoll.remoteMove(d));
+  Net.on('boardStroke', d => Board.remoteStroke(d));
+  Net.on('boardClear', () => Board.clear());
+  Net.on('boardOpen', d => Board.remoteOpen(d.open));
   Net.on('dragEnd', d => Ragdoll.remoteEnd(d));
   Net.on('zoneDrop', d => { Ragdoll.remoteZone(d); updateZoneUI(); });
   Net.on('zoneCancel', d => { Ragdoll.eject(d.id, state ? state.me : 0); updateZoneUI(); });
@@ -390,7 +391,7 @@
     }
     chars.forEach(c => { charMap[c.id] = c; });
     buildGallery();
-    Board.init();
+    Board.init({ send: (ev, data) => Net.send(ev, data) });
     Ragdoll.init($('fly'), {
       character: id => charMap[id] || { name: id, file: '' },
       zoneRect: side => $('box' + side).getBoundingClientRect(),

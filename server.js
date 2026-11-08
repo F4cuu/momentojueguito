@@ -115,7 +115,7 @@ function createServer() {
       rematch: ({ yes } = {}, reply) => act(() => G.rematchVote(room, id, yes, CHARACTER_IDS), reply),
     };
     // Eventos efímeros del ragdoll: se reenvían al rival sin tocar el estado del juego.
-    const RELAY = new Set(['dragMove', 'dragEnd', 'zoneDrop', 'zoneCancel']);
+    const RELAY = new Set(['dragMove', 'dragEnd', 'zoneDrop', 'zoneCancel', 'boardStroke', 'boardClear', 'boardOpen']);
 
     ws.on('message', raw => {
       let msg;

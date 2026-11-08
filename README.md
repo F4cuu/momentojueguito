@@ -46,6 +46,6 @@ Las imágenes originales están en `PERSONAJES/`. Las que usa el juego son versi
 ## Novedades
 - Jugador 1 (izquierda) y Jugador 2 (derecha): cada uno ve su personaje en su lado; el recuadro "?" para adivinar está del lado del rival.
 - Se quitaron las notas.
-- Pizarrón privado: acercá el cursor a tu borde (J1 izquierda, J2 derecha), hacé clic en la solapa y arrastralo. Colores, grosor, borrador y "Borrar todo".
+- Pizarrón compartido: asoma arriba de la pantalla; con clic en la solapa se abre para los dos jugadores, que dibujan a la vez (colores, grosor, borrador, borrar todo, agrandar).
 - "Ceder turno" para saltear.
 - Las cartas que no vuelven a su lugar caen al borde inferior con física de cuerpo rígido (depende de dónde las agarres).

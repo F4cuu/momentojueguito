@@ -169,22 +169,22 @@ input:focus, textarea:focus { outline: 2px solid var(--gold-d); border-color: tr
 
 /* ---------- Pizarrón ---------- */
 #board {
-  position: fixed; top: 150px; left: -700px; z-index: 35;
+  position: fixed; top: -700px; left: 0; z-index: 35;
   display: flex; align-items: flex-start;
   transition: left 0.18s ease, top 0.18s ease;
   user-select: none;
 }
 #board.dragging { transition: none; }
-#board:not(.right) { flex-direction: row-reverse; }
+#board { flex-direction: column-reverse; align-items: center; }
 .bhandle {
-  width: 14px; height: 120px; margin-top: 6px; cursor: grab; flex: none;
-  background: linear-gradient(#e8c65f, #a8832a);
-  border-radius: 0 8px 8px 0; display: grid; place-items: center;
+  width: 130px; height: 14px; margin: 0; cursor: grab; flex: none;
+  background: linear-gradient(90deg, #a8832a, #e8c65f, #a8832a);
+  border-radius: 0 0 10px 10px; display: grid; place-items: center;
   box-shadow: 0 0 10px rgba(224, 184, 76, 0.45);
 }
-#board.right .bhandle { border-radius: 8px 0 0 8px; }
-.bhandle span { writing-mode: vertical-rl; font: 700 10px "Cinzel", Georgia, serif; color: #231a05; letter-spacing: 2px; opacity: 0; transition: opacity 0.15s; }
+.bhandle span { font: 700 9px "Cinzel", Georgia, serif; color: #231a05; letter-spacing: 2px; opacity: 0; transition: opacity 0.15s; }
 #board.peek:not(.open) .bhandle span { opacity: 1; }
+#board.open .bhandle { display: none; }
 .bhandle:active { cursor: grabbing; }
 .bbody {
   width: 544px; padding: 8px; background: #16241d; border: 2px solid #8b6b2e; border-radius: 10px;
