@@ -19,9 +19,9 @@ body {
   font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   overflow: hidden;
 }
-h1, h2, .brand, .btn.gold { font-family: "Cinzel", Georgia, "Times New Roman", serif; }
+h1, h2, .brand, .btn.gold, .seat { font-family: "Cinzel", Georgia, "Times New Roman", serif; }
 h1 { margin: 0 0 4px; color: var(--gold); letter-spacing: 1px; text-align: center; }
-h2 { margin: 0 0 8px; color: var(--gold); font-size: 17px; letter-spacing: 1px; }
+h2 { margin: 0; color: var(--gold); font-size: 17px; letter-spacing: 1px; }
 .hidden { display: none !important; }
 .sub { color: var(--muted); text-align: center; margin: 4px 0 14px; }
 .hint { color: var(--muted); font-size: 13px; text-align: center; }
@@ -49,7 +49,6 @@ input, textarea {
   font: inherit;
 }
 input:focus, textarea:focus { outline: 2px solid var(--gold-d); border-color: transparent; }
-textarea { resize: none; flex: 1; min-height: 80px; }
 
 .btn {
   background: #232a56;
@@ -77,10 +76,10 @@ textarea { resize: none; flex: 1; min-height: 80px; }
 .plist .ok { color: var(--good); }
 .plist .wait { color: var(--muted); }
 
-/* Juego */
+/* ---------- Juego: J1 a la izquierda, J2 a la derecha ---------- */
 #screenGame {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr) 300px;
+  grid-template-columns: 230px minmax(0, 1fr) 230px;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 12px;
   padding: 12px;
@@ -91,51 +90,51 @@ textarea { resize: none; flex: 1; min-height: 80px; }
 #score b { color: var(--gold); font-size: 20px; padding: 0 4px; }
 .tools { display: flex; gap: 8px; }
 
-#chatPanel, #notesPanel { display: flex; flex-direction: column; min-height: 0; }
-#chatLog { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; min-height: 0; }
-.msg { padding: 6px 9px; border-radius: 10px; background: #1b2250; max-width: 92%; word-break: break-word; }
+.side { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 0; overflow: hidden; }
+.seat { color: var(--gold); font-size: 18px; letter-spacing: 1px; }
+.pname { font-weight: 700; min-height: 1.4em; text-align: center; word-break: break-word; }
+.box {
+  width: 190px; height: 250px; border-radius: 12px; overflow: hidden; position: relative;
+  display: grid; place-items: center; background: #0d1230; border: 3px solid var(--line);
+  transition: background 0.15s, border-color 0.15s;
+}
+.box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.box.mine { border-color: var(--gold-d); }
+.box.target { background: #030305; border: 3px dashed var(--gold-d); }
+.box .q { font: 700 110px "Cinzel", Georgia, serif; color: rgba(224, 184, 76, 0.45); }
+.box.target.hot { background: #17130a; border-color: var(--gold); }
+.box.target.hot .q { color: var(--gold); }
+.box.target.disabled { border-color: var(--line); }
+.box.target.disabled .q { color: rgba(255, 255, 255, 0.14); }
+.boxname { font-size: 13px; color: var(--muted); text-align: center; min-height: 1.4em; }
+.hearts { font-size: 22px; letter-spacing: 3px; color: #ff5a6a; min-height: 28px; }
+.hearts .lost { color: #3a3f66; }
+.guess-slot { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+#guessBtns { display: flex; flex-direction: column; gap: 6px; width: 100%; position: relative; z-index: 60; }
+#guessBtns.hidden { display: none; }
+.zonecap { color: var(--muted); font-size: 13px; text-align: center; min-height: 2.6em; }
+
+#center { display: flex; flex-direction: column; min-height: 0; min-width: 0; gap: 6px; }
+#chatPanel { display: flex; flex-direction: column; height: 218px; flex: none; padding: 10px 12px; }
+.chathead { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+#turnInfo { flex: 1; padding: 5px 8px; border-radius: 8px; text-align: center; background: #10163a; border: 1px dashed var(--line); font-size: 14px; }
+#turnInfo:empty { visibility: hidden; }
+#turnInfo.mine { border-color: var(--gold); color: var(--gold); }
+#chatLog { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding-right: 4px; min-height: 0; }
+.msg { padding: 5px 9px; border-radius: 10px; background: #1b2250; max-width: 80%; word-break: break-word; }
 .msg small { display: block; color: var(--muted); font-size: 11px; }
 .msg.mine { align-self: flex-end; background: #2b3470; }
-.msg.ans { align-self: center; font-weight: 700; padding: 3px 12px; background: transparent; border: 1px solid var(--line); font-size: 13px; }
+.msg.ans { align-self: center; font-weight: 700; padding: 2px 12px; background: transparent; border: 1px solid var(--line); font-size: 13px; max-width: 100%; }
 .msg.ans.si { color: #5fe39a; border-color: var(--good); }
 .msg.ans.no { color: #ff8f96; border-color: var(--bad); }
 .msg.ans.ns { color: var(--gold); border-color: var(--gold-d); }
-#turnInfo { margin: 10px 0 6px; padding: 8px; border-radius: 8px; text-align: center; background: #10163a; border: 1px dashed var(--line); font-size: 14px; }
-#turnInfo.mine { border-color: var(--gold); color: var(--gold); }
+.chatctl { margin-top: 8px; min-height: 38px; }
 #askForm { display: flex; gap: 6px; }
-#askForm .btn { margin: 0; }
+#askForm .btn { margin: 0; white-space: nowrap; }
 #answerBtns { display: flex; gap: 6px; }
 #answerBtns .btn { flex: 1; }
 
-#notesPanel textarea { margin-bottom: 4px; }
-#notesPanel label { margin-top: 6px; }
-
-#stage { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
-#stageTop { display: flex; gap: 12px; align-items: stretch; }
-#myCard { width: 170px; text-align: center; }
-#myCard .lbl { font-size: 12px; color: var(--muted); }
-#myImg { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid var(--gold-d); margin: 6px 0 4px; background: #0d1230; }
-#myName { font-weight: 700; }
-.hearts { font-size: 20px; letter-spacing: 3px; color: #ff5a6a; min-height: 26px; }
-.hearts .lost { color: #3a3f66; }
-#oppInfo { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 4px; }
-#oppName { font-family: "Cinzel", Georgia, serif; font-size: 20px; color: var(--gold); }
-#zoneCaption { color: var(--muted); font-size: 13px; min-height: 1.3em; }
-#zoneWrap { width: 190px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-#guessZone {
-  width: 170px; height: 190px;
-  border: 3px dashed var(--gold-d);
-  border-radius: 14px;
-  display: grid; place-items: center;
-  font: 700 84px "Cinzel", Georgia, serif;
-  color: rgba(224, 184, 76, 0.35);
-  background: rgba(224, 184, 76, 0.05);
-  transition: background 0.15s, border-color 0.15s;
-}
-#guessZone.hot { background: rgba(224, 184, 76, 0.2); border-color: var(--gold); }
-#guessZone.disabled { border-color: var(--line); color: rgba(255, 255, 255, 0.12); }
-#guessBtns { display: flex; flex-direction: column; gap: 6px; width: 100%; position: relative; z-index: 60; }
-.galhint { color: var(--muted); font-size: 12px; text-align: center; margin: 8px 0 6px; }
+.galhint { color: var(--muted); font-size: 12px; text-align: center; }
 #gallery {
   flex: 1; overflow-y: auto; min-height: 0;
   display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px;
@@ -151,7 +150,7 @@ textarea { resize: none; flex: 1; min-height: 80px; }
 .gcard.struck::after { content: "✕"; position: absolute; inset: 0 0 28px 0; display: grid; place-items: center; font-size: 58px; color: rgba(255, 90, 106, 0.85); pointer-events: none; }
 .gcard.away { opacity: 0.25; pointer-events: none; }
 
-/* Cartas voladoras (ragdoll) */
+/* ---------- Cartas con física ---------- */
 #fly { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
 .fcard {
   position: absolute; left: 0; top: 0;
@@ -160,7 +159,7 @@ textarea { resize: none; flex: 1; min-height: 80px; }
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 18px rgba(224, 184, 76, 0.35);
   will-change: transform; pointer-events: none; user-select: none;
 }
-.fcard.grabbable { pointer-events: auto; cursor: grab; }
+.fcard.held { box-shadow: 0 18px 36px rgba(0, 0, 0, 0.7), 0 0 26px rgba(224, 184, 76, 0.6); }
 .fcard img { display: block; width: 100%; height: 108px; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
 .fcard span { display: block; font-size: 11px; text-align: center; padding: 3px 2px; line-height: 1.15; }
 .fcard.win { border-color: #fff3b0; animation: winpulse 0.5s ease-in-out 4; box-shadow: 0 0 36px 10px rgba(255, 230, 120, 0.85); }
@@ -168,7 +167,45 @@ textarea { resize: none; flex: 1; min-height: 80px; }
 .spark { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #ffe27a; box-shadow: 0 0 10px #ffd34d; animation: spark 1s ease-out forwards; }
 @keyframes spark { to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; } }
 
-/* Avisos */
+/* ---------- Pizarrón ---------- */
+#board {
+  position: fixed; top: 150px; left: -700px; z-index: 35;
+  display: flex; align-items: flex-start;
+  transition: left 0.18s ease, top 0.18s ease;
+  user-select: none;
+}
+#board.dragging { transition: none; }
+#board:not(.right) { flex-direction: row-reverse; }
+.bhandle {
+  width: 14px; height: 120px; margin-top: 6px; cursor: grab; flex: none;
+  background: linear-gradient(#e8c65f, #a8832a);
+  border-radius: 0 8px 8px 0; display: grid; place-items: center;
+  box-shadow: 0 0 10px rgba(224, 184, 76, 0.45);
+}
+#board.right .bhandle { border-radius: 8px 0 0 8px; }
+.bhandle span { writing-mode: vertical-rl; font: 700 10px "Cinzel", Georgia, serif; color: #231a05; letter-spacing: 2px; opacity: 0; transition: opacity 0.15s; }
+#board.peek:not(.open) .bhandle span { opacity: 1; }
+.bhandle:active { cursor: grabbing; }
+.bbody {
+  width: 544px; padding: 8px; background: #16241d; border: 2px solid #8b6b2e; border-radius: 10px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
+}
+.bhead { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 8px; cursor: move; color: var(--gold); font: 700 15px "Cinzel", Georgia, serif; }
+.bhead small { font: 400 11px system-ui, sans-serif; color: var(--muted); }
+.btools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+.bcolors { display: flex; gap: 5px; }
+.swatch { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #0008; cursor: pointer; padding: 0; }
+.swatch.active { outline: 3px solid var(--gold); outline-offset: 1px; }
+.bsize { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--txt); }
+.bsize input { width: 90px; padding: 0; }
+.bsize i { display: block; border-radius: 50%; background: #fff; flex: none; }
+#beraser.active { background: var(--gold); color: #231a05; border-color: #f0d680; font-weight: 700; }
+#bcanvas { display: block; width: 520px; height: 300px; background: #1d2f26; border: 2px solid #0b140f; border-radius: 6px; touch-action: none; cursor: crosshair; }
+#board.erasing #bcanvas { cursor: cell; }
+#board.big .bbody { width: auto; }
+#board.big #bcanvas { width: min(980px, calc(100vw - 120px)); height: auto; aspect-ratio: 520 / 300; }
+
+/* ---------- Avisos ---------- */
 #banner { position: fixed; top: 0; left: 0; right: 0; z-index: 200; text-align: center; padding: 8px; background: #7a5a12; color: #fff; font-weight: 600; }
 #toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 200; background: #2b3470; border: 1px solid var(--gold-d); padding: 10px 18px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
 #overlay { position: fixed; inset: 0; z-index: 100; background: rgba(4, 6, 18, 0.78); display: grid; place-items: center; }
@@ -181,8 +218,7 @@ textarea { resize: none; flex: 1; min-height: 80px; }
 #overBtns { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
 
 @media (max-width: 1100px) {
-  #screenGame { grid-template-columns: 250px minmax(0, 1fr) 230px; }
-  #myCard { width: 140px; }
-  #guessZone { width: 140px; height: 160px; }
-  #zoneWrap { width: 150px; }
+  #screenGame { grid-template-columns: 190px minmax(0, 1fr) 190px; }
+  .box { width: 150px; height: 200px; }
+  .box .q { font-size: 84px; }
 }

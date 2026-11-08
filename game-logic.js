@@ -21,7 +21,6 @@ function createRoom(code) {
     chat: [],
     pool: [],
     rematch: [null, null],
-    notes: ['', ''], // notes[i] = bloc de notas del jugador i
     nextStarter: null,
   };
 }
@@ -78,7 +77,6 @@ function startRound(room, characterIds, rng = Math.random) {
   room.winner = null;
   room.rematch = [null, null];
   room.chat = [];
-  room.notes = ['', ''];
   room.turn = room.nextStarter != null ? room.nextStarter : (rng() < 0.5 ? 0 : 1);
   room.nextStarter = null;
 }
@@ -139,6 +137,19 @@ function guess(room, id, characterId) {
   return { correct: false, roundOver: false, livesLeft: room.players[i].lives };
 }
 
+// Ceder el turno: solo quien tiene el turno y antes de hacer su pregunta.
+function skip(room, id) {
+  requirePlaying(room);
+  const i = indexOf(room, id);
+  if (i !== room.turn) fail('NO_ES_TU_TURNO');
+  if (room.awaiting !== 'ask') fail('ESPERANDO_RESPUESTA');
+  const msg = { from: i, kind: 'skip', text: 'cedió su turno' };
+  room.chat.push(msg);
+  room.turn = 1 - room.turn;
+  room.awaiting = 'ask';
+  return msg;
+}
+
 function rematchVote(room, id, yes, characterIds, rng = Math.random) {
   if (room.phase !== 'roundOver') fail('RONDA_NO_ACTIVA');
   const i = indexOf(room, id);
@@ -155,12 +166,6 @@ function rematchVote(room, id, yes, characterIds, rng = Math.random) {
   return { started: false, ended: false };
 }
 
-function setNotes(room, id, ownerIndex, text) {
-  indexOf(room, id); // solo valida que sea jugador de la sala
-  if (ownerIndex !== 0 && ownerIndex !== 1) fail('NOTAS_INVALIDAS');
-  room.notes[ownerIndex] = String(text || '').slice(0, 2000);
-}
-
 // Vista privada: nunca incluye el personaje del rival mientras la ronda está activa.
 function viewFor(room, id) {
   const me = indexOf(room, id);
@@ -175,7 +180,6 @@ function viewFor(room, id) {
     winner: room.winner,
     wins: room.wins.slice(),
     chat: room.chat.slice(),
-    notes: room.notes.slice(),
     rematch: room.rematch.slice(),
     players: room.players.map(p => ({ name: p.name, ready: p.ready, lives: p.lives, connected: p.connected })),
     myCharacter: room.phase === 'lobby' ? null : room.players[me].character,
@@ -186,5 +190,5 @@ function viewFor(room, id) {
 
 module.exports = {
   ANSWERS, LIVES, createRoom, addPlayer, reconnect, setReady, allReady,
-  startRound, ask, answer, guess, rematchVote, setNotes, viewFor,
+  startRound, ask, answer, guess, rematchVote, skip, viewFor,
 };

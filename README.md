@@ -42,3 +42,10 @@ Nota: en el plan gratis el servidor se duerme tras un rato sin uso; la primera v
 
 ## Agregar o cambiar personajes
 Las imágenes originales están en `PERSONAJES/`. Las que usa el juego son versiones livianas (.webp) en `public/personajes/`, listadas en `public/characters.json` (`id`, `name`, `file`). Para agregar una, sumá la imagen a `public/personajes/` y una entrada en `characters.json`. El nombre que se muestra es el campo `name`.
+
+## Novedades
+- Jugador 1 (izquierda) y Jugador 2 (derecha): cada uno ve su personaje en su lado; el recuadro "?" para adivinar está del lado del rival.
+- Se quitaron las notas.
+- Pizarrón privado: acercá el cursor a tu borde (J1 izquierda, J2 derecha), hacé clic en la solapa y arrastralo. Colores, grosor, borrador y "Borrar todo".
+- "Ceder turno" para saltear.
+- Las cartas que no vuelven a su lugar caen al borde inferior con física de cuerpo rígido (depende de dónde las agarres).

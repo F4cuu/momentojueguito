@@ -55,8 +55,17 @@ test('flujo completo cliente-servidor: sorteo privado, turnos, ragdoll y revanch
     const turnPlayer = a.latest.turn === 0 ? a : b;
     const other = turnPlayer === a ? b : a;
     assert.equal((await emit(other, 'ask', { text: 'hola' })).error, 'NO_ES_TU_TURNO');
+    assert.equal((await emit(other, 'skip')).error, 'NO_ES_TU_TURNO');
     assert.equal((await emit(turnPlayer, 'ask', { text: '¿Es chica?' })).ok, true);
     assert.equal((await emit(other, 'answer', { answer: 'No' })).ok, true);
+
+    // ceder turno desde el que tiene el turno ahora (other) y volver a ceder
+    const skipper = other;
+    assert.equal((await emit(skipper, 'skip')).ok, true);
+    await wait(50);
+    assert.equal((await emit(turnPlayer, 'skip')).ok, true);
+    await wait(50);
+    assert.ok(a.latest.chat.some(m => m.kind === 'skip'));
 
     const res = await emit(other, 'guess', { characterId: turnPlayer.latest.myCharacter });
     assert.equal(res.result.correct, true);

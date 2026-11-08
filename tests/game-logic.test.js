@@ -184,3 +184,36 @@ test('reconexión por token conserva el estado del jugador', () => {
   assert.equal(room.players[0].character, char);
   assert.equal(G.reconnect(room, 'token-falso', 's10'), null);
 });
+
+test('ceder turno: pasa el turno y deja un aviso en el chat', () => {
+  const { room } = started();
+  const t = room.turn;
+  const msg = G.skip(room, idAt(room, t));
+  assert.equal(room.turn, 1 - t);
+  assert.equal(room.awaiting, 'ask');
+  assert.equal(msg.kind, 'skip');
+  assert.equal(room.chat.at(-1).kind, 'skip');
+  assert.equal(room.chat.at(-1).from, t);
+});
+
+test('ceder turno: solo quien tiene el turno y antes de preguntar', () => {
+  const { room } = started();
+  const t = room.turn;
+  assert.throws(() => G.skip(room, idAt(room, 1 - t)), /NO_ES_TU_TURNO/);
+  G.ask(room, idAt(room, t), '¿Es hombre?');
+  assert.throws(() => G.skip(room, idAt(room, t)), /ESPERANDO_RESPUESTA/);
+});
+
+test('ceder turno: no se puede cuando la ronda no está activa', () => {
+  const { room } = started();
+  const t = room.turn;
+  G.guess(room, idAt(room, t), room.players[1 - t].character);
+  assert.throws(() => G.skip(room, idAt(room, t)), /RONDA_NO_ACTIVA/);
+});
+
+test('las notas ya no existen en el estado', () => {
+  const { room } = started();
+  const v = G.viewFor(room, idAt(room, 0));
+  assert.equal(v.notes, undefined);
+  assert.equal(G.setNotes, undefined);
+});

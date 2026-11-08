@@ -52,54 +52,79 @@
     </div>
   </header>
 
-  <aside id="chatPanel" class="panel">
-    <h2>Preguntas</h2>
-    <div id="chatLog"></div>
-    <div id="turnInfo"></div>
-    <form id="askForm" class="hidden">
-      <input id="askInput" maxlength="200" placeholder="Pregunta de Sí/No…" autocomplete="off">
-      <button class="btn gold small">Preguntar</button>
-    </form>
-    <div id="answerBtns" class="hidden">
-      <button class="btn good" data-a="Sí">Sí</button>
-      <button class="btn bad" data-a="No">No</button>
-      <button class="btn" data-a="No sé">No sé</button>
-    </div>
+  <!-- Jugador 1: lado izquierdo -->
+  <aside id="side0" class="side panel">
+    <div class="seat">Jugador 1</div>
+    <div class="pname" id="pname0"></div>
+    <div class="box" id="box0"></div>
+    <div class="boxname" id="boxname0"></div>
+    <div class="hearts" id="hearts0"></div>
+    <div class="guess-slot" id="slot0"></div>
+    <div class="zonecap" id="cap0"></div>
   </aside>
 
-  <main id="stage">
-    <div id="stageTop">
-      <div id="myCard" class="panel">
-        <div class="lbl">Tu personaje secreto</div>
-        <img id="myImg" alt="">
-        <div id="myName"></div>
-        <div id="myHearts" class="hearts"></div>
+  <main id="center">
+    <div id="chatPanel" class="panel">
+      <div class="chathead">
+        <h2>Preguntas</h2>
+        <div id="turnInfo"></div>
       </div>
-      <div id="oppInfo" class="panel">
-        <div id="oppName"></div>
-        <div id="oppHearts" class="hearts"></div>
-        <div id="zoneCaption"></div>
-      </div>
-      <div id="zoneWrap">
-        <div id="guessZone"><span>?</span></div>
-        <div id="guessBtns" class="hidden">
-          <button id="btnYes" class="btn gold">Mmm, para mí sí</button>
-          <button id="btnNo" class="btn">Permitime dudar...</button>
+      <div id="chatLog"></div>
+      <div class="chatctl">
+        <form id="askForm" class="hidden">
+          <input id="askInput" maxlength="200" placeholder="Pregunta de Sí/No…" autocomplete="off">
+          <button class="btn gold small">Preguntar</button>
+          <button type="button" id="btnSkip" class="btn small" title="Pasar el turno sin preguntar">Ceder turno</button>
+        </form>
+        <div id="answerBtns" class="hidden">
+          <button class="btn good" data-a="Sí">Sí</button>
+          <button class="btn bad" data-a="No">No</button>
+          <button class="btn" data-a="No sé">No sé</button>
         </div>
       </div>
     </div>
-    <div class="galhint">Clic izquierdo: tachar · Clic derecho (mantener): arrastrar · Soltá en el “?” para adivinar</div>
+    <div class="galhint">Clic izquierdo: tachar · Clic derecho (mantener): agarrar y arrastrar · Soltá en el “?” del rival para adivinar</div>
     <div id="gallery"></div>
   </main>
 
-  <aside id="notesPanel" class="panel">
-    <h2>Notas</h2>
-    <label id="lblMine" for="notesMine"></label>
-    <textarea id="notesMine" maxlength="2000"></textarea>
-    <label id="lblOpp" for="notesOpp"></label>
-    <textarea id="notesOpp" maxlength="2000"></textarea>
+  <!-- Jugador 2: lado derecho -->
+  <aside id="side1" class="side panel">
+    <div class="seat">Jugador 2</div>
+    <div class="pname" id="pname1"></div>
+    <div class="box" id="box1"></div>
+    <div class="boxname" id="boxname1"></div>
+    <div class="hearts" id="hearts1"></div>
+    <div class="guess-slot" id="slot1"></div>
+    <div class="zonecap" id="cap1"></div>
   </aside>
 </section>
+
+<!-- Botones de confirmación de la adivinanza (se mueven al lado del rival) -->
+<div id="guessBtns" class="hidden">
+  <button id="btnYes" class="btn gold">Mmm, para mí sí</button>
+  <button id="btnNo" class="btn">Permitime dudar...</button>
+</div>
+
+<!-- Pizarrón privado y movible -->
+<div id="board" class="hidden">
+  <div class="bhandle" id="bhandle" title="Pizarrón: hacé clic y arrastralo"><span>PIZARRÓN</span></div>
+  <div class="bbody">
+    <div class="bhead" id="bhead">
+      <span>Pizarrón <small>(solo lo ves vos)</small></span>
+      <span><button id="bexpand" class="btn small" title="Agrandar / achicar">⤢</button> <button id="bclose" class="btn small" title="Guardar el pizarrón">✕</button></span>
+    </div>
+    <div class="btools">
+      <div id="bcolors" class="bcolors"></div>
+      <label class="bsize">Grosor
+        <input type="range" id="bsize" min="1" max="30" value="4">
+        <i id="bdot"></i>
+      </label>
+      <button id="beraser" class="btn small">Borrador</button>
+      <button id="bclear" class="btn small">Borrar todo</button>
+    </div>
+    <canvas id="bcanvas" width="520" height="300"></canvas>
+  </div>
+</div>
 
 <!-- Fin de ronda -->
 <div id="overlay" class="hidden">
@@ -124,7 +149,9 @@
 
 <script src="net.js"></script>
 <script src="sfx.js"></script>
+<script src="physics.js"></script>
 <script src="ragdoll.js"></script>
+<script src="board.js"></script>
 <script src="game.js"></script>
 </body>
 </html>

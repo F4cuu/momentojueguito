@@ -18,14 +18,12 @@
   const charMap = {};
   let state = null;
   let session = null;
-  let zoneLocal = null; // id de mi carta posada en el "?"
+  let zoneLocal = null; // id de mi carta posada sobre el "?" del rival
   let guessPending = false;
   let celebrationUntil = 0;
   const struck = new Set();
   let connBanner = '';
   let toastTimer = null;
-  const notesDirty = { 0: 0, 1: 0 };
-  const notesTimer = {};
 
   try { session = JSON.parse(sessionStorage.getItem('session') || 'null'); } catch (e) { session = null; }
   const saveSession = () => { try { sessionStorage.setItem('session', JSON.stringify(session)); } catch (e) { /* sin storage */ } };
@@ -113,6 +111,7 @@
     });
   }
   const canGuess = () => !!state && state.phase === 'playing' && state.turn === state.me && state.awaiting === 'ask' && !guessPending;
+  const targetSide = () => 1 - state.me; // el recuadro "?" está del lado del rival
 
   $('gallery').addEventListener('click', e => {
     const card = e.target.closest('.gcard');
@@ -129,14 +128,13 @@
     Sfx.grab();
     Ragdoll.grab(id, e.clientX, e.clientY);
   }
-  $('gallery').addEventListener('mousedown', e => {
-    if (e.button !== 2) return;
-    const card = e.target.closest('.gcard');
-    if (card) startGrab(e, card.dataset.id);
-  });
-  $('fly').addEventListener('mousedown', e => {
-    if (e.button !== 2) return;
-    const card = e.target.closest('.fcard.grabbable');
+  // Clic derecho: primero cartas sueltas en pantalla (por geometría, respetando su inclinación), si no la galería.
+  document.addEventListener('mousedown', e => {
+    if (e.button !== 2 || Board.contains(e.target)) return;
+    if ($('screenGame').classList.contains('hidden')) return;
+    const loose = Ragdoll.cardAt(e.clientX, e.clientY);
+    if (loose) return startGrab(e, loose);
+    const card = e.target.closest && e.target.closest('.gcard');
     if (card) startGrab(e, card.dataset.id);
   });
   document.addEventListener('contextmenu', e => {
@@ -145,31 +143,33 @@
   window.addEventListener('mousemove', e => {
     if (!Ragdoll.isDragging()) return;
     Ragdoll.setTarget(e.clientX, e.clientY);
-    $('guessZone').classList.toggle('hot', Ragdoll.overZone() && canGuess());
+    $('box' + targetSide()).classList.toggle('hot', Ragdoll.overZone() && canGuess());
   });
   window.addEventListener('mouseup', e => {
     if (e.button !== 2 || !Ragdoll.isDragging()) return;
-    $('guessZone').classList.remove('hot');
+    document.querySelectorAll('.box').forEach(b => b.classList.remove('hot'));
     const res = Ragdoll.release();
     if (!res) return;
-    if (res.where === 'zone') {
-      zoneLocal = res.id;
-    } else if (res.wasOverZone) {
-      toast('Solo podés adivinar en tu turno, antes de preguntar.');
-    }
+    if (res.where === 'zone') zoneLocal = res.id;
+    else if (res.wasOverZone) toast('Solo podés adivinar en tu turno, antes de preguntar.');
     updateZoneUI();
   });
 
   // ---------- Zona de adivinanza ----------
   function updateZoneUI() {
-    const has = !!zoneLocal && Ragdoll.has(zoneLocal);
-    if (zoneLocal && !has) zoneLocal = null;
+    if (!state) return;
+    if (zoneLocal && !Ragdoll.has(zoneLocal)) zoneLocal = null;
+    const tgt = targetSide();
+    $('slot' + tgt).appendChild($('guessBtns'));
     $('guessBtns').classList.toggle('hidden', !zoneLocal);
     $('btnYes').disabled = guessPending;
     $('btnNo').disabled = guessPending;
-    const opp = state ? state.players[1 - state.me] : null;
-    $('zoneCaption').textContent = !zoneLocal && Ragdoll.hasZoneCard() && opp ? opp.name + ' va a intentar adivinar…' : '';
-    $('guessZone').classList.toggle('disabled', !canGuess());
+    const opp = state.players[1 - state.me];
+    $('cap0').textContent = '';
+    $('cap1').textContent = '';
+    if (!zoneLocal && Ragdoll.hasZoneCard() && opp) $('cap' + state.me).textContent = opp.name + ' va a intentar adivinar…';
+    $('box' + tgt).classList.toggle('disabled', !canGuess());
+    $('box' + state.me).classList.remove('disabled');
   }
 
   $('btnYes').onclick = () => {
@@ -192,7 +192,7 @@
     if (!id || guessPending) return;
     zoneLocal = null;
     Net.send('zoneCancel', { id });
-    Ragdoll.eject(id);
+    Ragdoll.eject(id, targetSide());
     updateZoneUI();
   };
 
@@ -205,31 +205,11 @@
       if (r.error) toast(errText(r.error)); else $('askInput').value = '';
     });
   };
+  $('btnSkip').onclick = () => Net.send('skip', {}, r => r.error && toast(errText(r.error)));
   $('answerBtns').addEventListener('click', e => {
     const b = e.target.closest('button[data-a]');
     if (b) Net.send('answer', { answer: b.dataset.a }, r => r.error && toast(errText(r.error)));
   });
-
-  // ---------- Notas ----------
-  function bindNotes(elId, ownerOf) {
-    const el = $(elId);
-    el.addEventListener('input', () => {
-      if (!state) return;
-      const owner = ownerOf();
-      notesDirty[owner]++;
-      clearTimeout(notesTimer[owner]);
-      notesTimer[owner] = setTimeout(() => {
-        const mark = notesDirty[owner];
-        Net.send('notes', { owner, text: el.value }, () => { if (notesDirty[owner] === mark) notesDirty[owner] = 0; });
-      }, 150);
-    });
-  }
-  bindNotes('notesMine', () => state.me);
-  bindNotes('notesOpp', () => 1 - state.me);
-  function syncNote(el, owner, text) {
-    if (document.activeElement === el || notesDirty[owner]) return;
-    if (el.value !== text) el.value = text;
-  }
 
   // ---------- Render ----------
   const hearts = n => '<span>' + '♥'.repeat(Math.max(0, n)) + '</span><span class="lost">' + '♥'.repeat(Math.max(0, 2 - n)) + '</span>';
@@ -239,34 +219,47 @@
     const s = state;
     $('lobbyCode').textContent = s.code;
     $('lobbyLink').value = roomLink();
-    $('lobbyPlayers').innerHTML = s.players.map(p =>
-      '<li><span>' + esc(p.name) + '</span><span class="' + (p.ready ? 'ok' : 'wait') + '">' + (p.ready ? '✔ Listo' : 'Esperando…') + '</span></li>').join('') +
+    $('lobbyPlayers').innerHTML = s.players.map((p, i) =>
+      '<li><span>Jugador ' + (i + 1) + ': ' + esc(p.name) + '</span><span class="' + (p.ready ? 'ok' : 'wait') + '">' + (p.ready ? '✔ Listo' : 'Esperando…') + '</span></li>').join('') +
       (s.players.length < 2 ? '<li><span class="wait">Esperando al otro jugador…</span></li>' : '');
     const me = s.players[s.me];
     $('btnReady').disabled = me.ready || s.players.length < 2;
     $('btnReady').textContent = me.ready ? 'Esperando al rival…' : '¡Listo!';
     $('lobbyMsg').textContent = s.players.length < 2 ? 'Cuando entre tu rival, los dos aprietan “Listo” y empieza la partida.' : '';
+    Board.setVisible(false);
   }
 
   function turnText(s) {
     const opp = s.players[1 - s.me].name;
-    if (s.turn === s.me) return s.awaiting === 'ask' ? 'Tu turno: preguntá o arrastrá un personaje al “?” para adivinar' : 'Esperando la respuesta de ' + opp + '…';
+    if (s.turn === s.me) return s.awaiting === 'ask' ? 'Tu turno: preguntá, cedé el turno o arrastrá un personaje al “?”' : 'Esperando la respuesta de ' + opp + '…';
     return s.awaiting === 'ask' ? 'Turno de ' + opp + '…' : opp + ' preguntó. ¡Respondé!';
+  }
+
+  // Cada lado muestra a su jugador: el propio recuadro con mi personaje y el del rival en negro con "?".
+  function renderSide(i) {
+    const s = state;
+    const p = s.players[i];
+    const mine = i === s.me;
+    $('pname' + i).textContent = p.name + (mine ? ' (vos)' : '');
+    $('hearts' + i).innerHTML = hearts(p.lives);
+    const box = $('box' + i);
+    const ch = mine ? (charMap[s.myCharacter] || { name: '?', file: '' }) : null;
+    const key = mine ? 'm:' + s.myCharacter : 't';
+    if (box.dataset.key !== key) {
+      box.dataset.key = key;
+      box.className = 'box ' + (mine ? 'mine' : 'target');
+      box.innerHTML = mine ? '<img src="' + esc(ch.file) + '" alt="">' : '<span class="q">?</span>';
+    }
+    $('boxname' + i).textContent = mine ? ch.name : 'Personaje a adivinar';
   }
 
   function renderGame() {
     showScreen('Game');
     const s = state;
-    const me = s.players[s.me], opp = s.players[1 - s.me];
     $('gameCode').textContent = s.code;
-    $('score').innerHTML = esc(s.players[0].name) + ' <b>' + s.wins[0] + '</b> – <b>' + s.wins[1] + '</b> ' + esc(s.players[1].name);
-
-    const mc = charMap[s.myCharacter] || { name: '?', file: '' };
-    $('myImg').src = mc.file;
-    $('myName').textContent = mc.name;
-    $('myHearts').innerHTML = hearts(me.lives);
-    $('oppName').textContent = opp.name;
-    $('oppHearts').innerHTML = hearts(opp.lives);
+    $('score').innerHTML = esc(s.players[0].name) + ' (J1) <b>' + s.wins[0] + '</b> – <b>' + s.wins[1] + '</b> ' + esc(s.players[1].name) + ' (J2)';
+    renderSide(0);
+    renderSide(1);
 
     const playing = s.phase === 'playing';
     const myTurn = playing && s.turn === s.me;
@@ -279,15 +272,15 @@
     log.innerHTML = s.chat.map(m => {
       const who = esc(s.players[m.from].name);
       if (m.kind === 'question') return '<div class="msg' + (m.from === s.me ? ' mine' : '') + '"><small>' + who + '</small>' + esc(m.text) + '</div>';
+      if (m.kind === 'skip') return '<div class="msg ans ns">' + who + ' ' + esc(m.text) + '</div>';
       const cls = m.text === 'Sí' ? 'si' : m.text === 'No' ? 'no' : 'ns';
       return '<div class="msg ans ' + cls + '">' + who + ': ' + esc(m.text) + '</div>';
     }).join('');
     log.scrollTop = log.scrollHeight;
 
-    $('lblMine').textContent = 'Tus notas (' + opp.name + ' las ve y las puede editar)';
-    $('lblOpp').textContent = 'Notas de ' + opp.name + ' (podés editarlas)';
-    syncNote($('notesMine'), s.me, s.notes[s.me]);
-    syncNote($('notesOpp'), 1 - s.me, s.notes[1 - s.me]);
+    // el pizarrón vive del lado del propio jugador: J1 a la izquierda, J2 a la derecha
+    Board.setSide(s.me === 0 ? 'left' : 'right');
+    Board.setVisible(true);
 
     updateAway();
     updateZoneUI();
@@ -329,7 +322,7 @@
   $('btnHome').onclick = () => { clearSession(); location.href = '/'; };
 
   function render() {
-    if (!state) { showScreen('Home'); updateBanner(); return; }
+    if (!state) { showScreen('Home'); Board.setVisible(false); updateBanner(); return; }
     if (state.phase === 'lobby') renderLobby(); else renderGame();
     updateBanner();
   }
@@ -340,6 +333,7 @@
     state = s;
     if (s.phase === 'playing' && (!prev || prev.phase !== 'playing')) {
       Ragdoll.clearAll();
+      Board.clear();
       struck.clear();
       zoneLocal = null;
       guessPending = false;
@@ -356,16 +350,17 @@
   Net.on('dragMove', d => Ragdoll.remoteMove(d));
   Net.on('dragEnd', d => Ragdoll.remoteEnd(d));
   Net.on('zoneDrop', d => { Ragdoll.remoteZone(d); updateZoneUI(); });
-  Net.on('zoneCancel', d => { Ragdoll.eject(d.id); updateZoneUI(); });
+  Net.on('zoneCancel', d => { Ragdoll.eject(d.id, state ? state.me : 0); updateZoneUI(); });
   Net.on('guessResult', ({ by, characterId, correct }) => {
     const mine = state && by === state.me;
+    const side = 1 - by; // el recuadro "?" estaba del lado del rival del que adivinó
     celebrationUntil = Date.now() + (correct ? 2300 : 1500);
     setTimeout(render, (correct ? 2300 : 1500) + 50);
-    if (correct) { Ragdoll.celebrate(characterId); Sfx.good(); } else { Ragdoll.eject(characterId); Sfx.bad(); }
+    if (correct) { Ragdoll.celebrate(characterId, side); Sfx.good(); } else { Ragdoll.eject(characterId, side); Sfx.bad(); }
     if (mine) zoneLocal = null;
     updateZoneUI();
   });
-  Net.on('slow', () => { connBanner = 'Despertando el servidor… puede tardar hasta 30 segundos.'; updateBanner(); });
+  Net.on('slow', () => { connBanner = 'Despertando el servidor… puede tardar hasta un minuto.'; updateBanner(); });
   Net.on('close', () => { connBanner = 'Conexión perdida. Reconectando…'; updateBanner(); });
   Net.on('open', () => {
     connBanner = '';
@@ -395,13 +390,17 @@
     }
     chars.forEach(c => { charMap[c.id] = c; });
     buildGallery();
+    Board.init();
     Ragdoll.init($('fly'), {
       character: id => charMap[id] || { name: id, file: '' },
-      zoneRect: () => $('guessZone').getBoundingClientRect(),
+      zoneRect: side => $('box' + side).getBoundingClientRect(),
+      zoneSide: () => targetSide(),
+      mySide: () => state.me,
       slotRect: id => {
         const el = $('gallery').querySelector('[data-id="' + id + '"]');
         return (el || $('gallery')).getBoundingClientRect();
       },
+      galleryRect: () => $('gallery').getBoundingClientRect(),
       canGuess,
       send: (ev, data) => Net.send(ev, data),
       onChange: () => { updateAway(); updateZoneUI(); },

@@ -30,6 +30,11 @@
   "file": "personajes/danmatio.webp"
  },
  {
+  "id": "domina",
+  "name": "Domina",
+  "file": "personajes/domina.webp"
+ },
+ {
   "id": "dorothy-unsworth",
   "name": "Dorothy Unsworth",
   "file": "personajes/dorothy-unsworth.webp"
@@ -128,6 +133,16 @@
   "id": "jack-the-ripper",
   "name": "Jack the ripper",
   "file": "personajes/jack-the-ripper.webp"
+ },
+ {
+  "id": "jamo",
+  "name": "Jamo",
+  "file": "personajes/jamo.webp"
+ },
+ {
+  "id": "julius-chiquito",
+  "name": "Julius chiquito",
+  "file": "personajes/julius-chiquito.webp"
  },
  {
   "id": "julius-novachronno",
@@ -230,6 +245,16 @@
   "file": "personajes/mimossa-vermillion.webp"
  },
  {
+  "id": "nashei",
+  "name": "Nashei",
+  "file": "personajes/nashei.webp"
+ },
+ {
+  "id": "nathan-agrippa",
+  "name": "Nathan Agrippa",
+  "file": "personajes/nathan-agrippa.webp"
+ },
+ {
   "id": "nebra-silva",
   "name": "Nebra Silva",
   "file": "personajes/nebra-silva.webp"
@@ -300,6 +325,16 @@
   "file": "personajes/rill.webp"
  },
  {
+  "id": "ringard",
+  "name": "Ringard",
+  "file": "personajes/ringard.webp"
+ },
+ {
+  "id": "rouge",
+  "name": "Rouge",
+  "file": "personajes/rouge.webp"
+ },
+ {
   "id": "salamander",
   "name": "Salamander",
   "file": "personajes/salamander.webp"
@@ -308,6 +343,11 @@
   "id": "sally",
   "name": "Sally",
   "file": "personajes/sally.webp"
+ },
+ {
+  "id": "seihi",
+  "name": "Seihi",
+  "file": "personajes/seihi.webp"
  },
  {
   "id": "sol-marron",
@@ -365,8 +405,8 @@
   "file": "personajes/zara.webp"
  },
  {
-  "id": "zoka",
-  "name": "Zoka",
-  "file": "personajes/zoka.webp"
+  "id": "zora",
+  "name": "Zora",
+  "file": "personajes/zora.webp"
  }
 ]

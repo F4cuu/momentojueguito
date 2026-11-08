@@ -105,7 +105,7 @@ function createServer() {
       }, reply),
       ask: ({ text } = {}, reply) => act(() => G.ask(room, id, text), reply),
       answer: ({ answer } = {}, reply) => act(() => G.answer(room, id, answer), reply),
-      notes: ({ owner, text } = {}, reply) => act(() => G.setNotes(room, id, owner, text), reply),
+      skip: (_, reply) => act(() => G.skip(room, id), reply),
       guess: ({ characterId } = {}, reply) => act(() => {
         const r = G.guess(room, id, characterId);
         const by = room.players.findIndex(p => p.id === id);
