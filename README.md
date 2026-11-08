@@ -49,6 +49,8 @@ Las imágenes originales están en `PERSONAJES/`. Las que usa el juego son versi
 - Pizarrón compartido: asoma arriba de la pantalla; con clic en la solapa se abre para los dos jugadores, que dibujan a la vez (colores, grosor, borrador, borrar todo, agrandar).
 - "Ceder turno" para saltear.
 - Las cartas que no vuelven a su lugar caen al borde inferior con física de cuerpo rígido (depende de dónde las agarres).
-- Modos de juego: al darse "Listo" eligen pool (Black Clover, Torre D&D o ambas mezcladas); arranca cuando los dos eligen lo mismo.
+- Pools tildables: tras "Listo" se tildan los grupos de personajes (Black Clover, Torre D&D, Jujutsu Kaisen) en cualquier combinación. Los dos pueden tocar la configuración y arranca cuando ambos aceptan.
+- Modos de juego: **Adivinar personaje** (el clásico) o **Grupo social**: cada uno escribe una frase secreta ("pelo negro", "murieron"…). En tu turno podés preguntar, arrastrar un personaje al "?" del rival para proponerlo (el rival decide si es válido; los válidos quedan en la tabla debajo de su "?") o arriesgar la frase. Gana quien adivine la frase del otro. Sin vidas.
+- Botón "⚙ Cambiar modo": en cualquier momento uno propone otro modo/pools; si el rival acepta arranca una ronda nueva y el marcador se mantiene.
 - Cada jugador sortea por separado: pueden tocar el mismo personaje.
 - Los personajes tachados de cada jugador se muestran debajo de su personaje.

@@ -754,5 +754,305 @@
   "name": "Viktor",
   "file": "personajes/dnd-viktor.webp",
   "pool": "dnd"
+ },
+ {
+  "id": "jjk-akari-nitta",
+  "name": "Akari Nitta",
+  "file": "personajes/jjk-akari-nitta.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-aoi-todo",
+  "name": "Aoi Todo",
+  "file": "personajes/jjk-aoi-todo.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-atsuya-kusakabe",
+  "name": "Atsuya Kusakabe",
+  "file": "personajes/jjk-atsuya-kusakabe.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-choso",
+  "name": "Choso",
+  "file": "personajes/jjk-choso.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-dagon",
+  "name": "Dagon",
+  "file": "personajes/jjk-dagon.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-el-negro-miguel",
+  "name": "El negro Miguel",
+  "file": "personajes/jjk-el-negro-miguel.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-fumihiko-takaba",
+  "name": "Fumihiko Takaba",
+  "file": "personajes/jjk-fumihiko-takaba.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-hanami",
+  "name": "Hanami",
+  "file": "personajes/jjk-hanami.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-haruta-shigemo",
+  "name": "Haruta Shigemo",
+  "file": "personajes/jjk-haruta-shigemo.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-hiromi-higuruma",
+  "name": "Hiromi Higuruma",
+  "file": "personajes/jjk-hiromi-higuruma.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-jogo",
+  "name": "Jogo",
+  "file": "personajes/jjk-jogo.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-kasumi-miwa",
+  "name": "Kasumi Miwa",
+  "file": "personajes/jjk-kasumi-miwa.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-kenjaku",
+  "name": "Kenjaku",
+  "file": "personajes/jjk-kenjaku.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-kento-nanami",
+  "name": "Kento Nanami",
+  "file": "personajes/jjk-kento-nanami.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-kinji-hakari",
+  "name": "Kinji Hakari",
+  "file": "personajes/jjk-kinji-hakari.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-kirara-hoshi",
+  "name": "Kirara Hoshi",
+  "file": "personajes/jjk-kirara-hoshi.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-kiyotaka-ijichi",
+  "name": "Kiyotaka Ijichi",
+  "file": "personajes/jjk-kiyotaka-ijichi.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-kokichi-muta-mechamaru",
+  "name": "Kokichi Muta (Mechamaru)",
+  "file": "personajes/jjk-kokichi-muta-mechamaru.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-maestro-tengen",
+  "name": "Maestro Tengen",
+  "file": "personajes/jjk-maestro-tengen.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-mahito",
+  "name": "Mahito",
+  "file": "personajes/jjk-mahito.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-mai-zenin",
+  "name": "Mai Zenin",
+  "file": "personajes/jjk-mai-zenin.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-maki-zenin",
+  "name": "Maki Zenin",
+  "file": "personajes/jjk-maki-zenin.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-masamichi-yaga",
+  "name": "Masamichi Yaga",
+  "file": "personajes/jjk-masamichi-yaga.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-megumi-fushiguro",
+  "name": "Megumi Fushiguro",
+  "file": "personajes/jjk-megumi-fushiguro.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-mimiko-hasaba",
+  "name": "Mimiko Hasaba",
+  "file": "personajes/jjk-mimiko-hasaba.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-misato-kuroi",
+  "name": "Misato Kuroi",
+  "file": "personajes/jjk-misato-kuroi.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-momo-nishimiya",
+  "name": "Momo Nishimiya",
+  "file": "personajes/jjk-momo-nishimiya.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-nanako-hasaba",
+  "name": "Nanako Hasaba",
+  "file": "personajes/jjk-nanako-hasaba.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-naobito-zenin",
+  "name": "Naobito Zenin",
+  "file": "personajes/jjk-naobito-zenin.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-naoya-zenin",
+  "name": "Naoya Zenin",
+  "file": "personajes/jjk-naoya-zenin.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-nobara-kugisaki",
+  "name": "Nobara Kugisaki",
+  "file": "personajes/jjk-nobara-kugisaki.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-noritoshi-kamo",
+  "name": "Noritoshi Kamo",
+  "file": "personajes/jjk-noritoshi-kamo.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-panda",
+  "name": "Panda",
+  "file": "personajes/jjk-panda.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-rika-orimoto",
+  "name": "Rika Orimoto",
+  "file": "personajes/jjk-rika-orimoto.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-riko-amanai",
+  "name": "Riko Amanai",
+  "file": "personajes/jjk-riko-amanai.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-ryomen-sukuna",
+  "name": "Ryomen Sukuna",
+  "file": "personajes/jjk-ryomen-sukuna.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-satoru-gojo",
+  "name": "Satoru Gojo",
+  "file": "personajes/jjk-satoru-gojo.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-shoko-ieiri",
+  "name": "Shoko Ieiri",
+  "file": "personajes/jjk-shoko-ieiri.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-suguru-geto",
+  "name": "Suguru Geto",
+  "file": "personajes/jjk-suguru-geto.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-takuma-ino",
+  "name": "Takuma Ino",
+  "file": "personajes/jjk-takuma-ino.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-toge-inumaki",
+  "name": "Toge Inumaki",
+  "file": "personajes/jjk-toge-inumaki.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-toji-fushiguro",
+  "name": "Toji Fushiguro",
+  "file": "personajes/jjk-toji-fushiguro.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-uraume",
+  "name": "Uraume",
+  "file": "personajes/jjk-uraume.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-utahime-iori",
+  "name": "Utahime Iori",
+  "file": "personajes/jjk-utahime-iori.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-yoshino-junpei",
+  "name": "Yoshino Junpei",
+  "file": "personajes/jjk-yoshino-junpei.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-yoshinobu-gakuganji",
+  "name": "Yoshinobu Gakuganji",
+  "file": "personajes/jjk-yoshinobu-gakuganji.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-yu-haibara",
+  "name": "Yu Haibara",
+  "file": "personajes/jjk-yu-haibara.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-yuji-itadori",
+  "name": "Yuji Itadori",
+  "file": "personajes/jjk-yuji-itadori.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-yuki-tsukumo",
+  "name": "Yuki Tsukumo",
+  "file": "personajes/jjk-yuki-tsukumo.webp",
+  "pool": "jjk"
+ },
+ {
+  "id": "jjk-yuta-okkotsu",
+  "name": "Yuta Okkotsu",
+  "file": "personajes/jjk-yuta-okkotsu.webp",
+  "pool": "jjk"
  }
 ]

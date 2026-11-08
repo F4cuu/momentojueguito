@@ -8,12 +8,9 @@ const G = require('./game-logic');
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const characters = JSON.parse(fs.readFileSync(path.join(PUBLIC_DIR, 'characters.json'), 'utf8'));
-const CHARACTER_IDS = characters.map(c => c.id);
-const POOLS = {
-  bc: characters.filter(c => c.pool === 'bc').map(c => c.id),
-  dnd: characters.filter(c => c.pool === 'dnd').map(c => c.id),
-  mix: CHARACTER_IDS,
-};
+// Un pool por cada valor de "pool" en characters.json (bc, dnd, jjk, ...).
+const POOLS = {};
+characters.forEach(c => { (POOLS[c.pool] = POOLS[c.pool] || []).push(c.id); });
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // sin I ni O
 const ROOM_TTL_MS = 10 * 60 * 1000;
 const MIME = {
@@ -106,9 +103,11 @@ function createServer() {
       },
       ready: (_, reply) => act(() => {
         G.setReady(room, id);
-        if (G.allReady(room)) G.beginChoosing(room);
+        if (G.allReady(room)) G.beginChoosing(room, POOLS);
       }, reply),
-      choosePool: ({ mode } = {}, reply) => act(() => G.choosePool(room, id, mode, POOLS), reply),
+      setDraft: (cfg, reply) => act(() => G.setDraft(room, id, cfg, POOLS), reply),
+      acceptDraft: (_, reply) => act(() => G.acceptDraft(room, id, POOLS), reply),
+      setPhrase: ({ text } = {}, reply) => act(() => G.setPhrase(room, id, text), reply),
       ask: ({ text } = {}, reply) => act(() => G.ask(room, id, text), reply),
       answer: ({ answer } = {}, reply) => act(() => G.answer(room, id, answer), reply),
       skip: (_, reply) => act(() => G.skip(room, id), reply),
@@ -118,7 +117,17 @@ function createServer() {
         room.players.forEach(p => send(p.id, 'guessResult', { by, characterId, correct: r.correct }));
         return r;
       }, reply),
-      rematch: ({ yes } = {}, reply) => act(() => G.rematchVote(room, id, yes, POOLS[room.mode] || CHARACTER_IDS), reply),
+      propose: ({ characterId } = {}, reply) => act(() => G.propose(room, id, characterId), reply),
+      verdict: ({ valid } = {}, reply) => act(() => {
+        const r = G.verdict(room, id, valid);
+        room.players.forEach(p => send(p.id, 'proposalResult', r));
+        return r;
+      }, reply),
+      guessPhrase: ({ text } = {}, reply) => act(() => G.guessPhrase(room, id, text), reply),
+      judgePhrase: ({ correct } = {}, reply) => act(() => G.judgePhrase(room, id, correct), reply),
+      proposeChange: (cfg, reply) => act(() => G.proposeChange(room, id, cfg, POOLS), reply),
+      answerChange: ({ yes } = {}, reply) => act(() => G.answerChange(room, id, yes, POOLS), reply),
+      rematch: ({ yes } = {}, reply) => act(() => G.rematchVote(room, id, yes, null), reply),
     };
     // Eventos efímeros del ragdoll: se reenvían al rival sin tocar el estado del juego.
     const RELAY = new Set(['dragMove', 'dragEnd', 'zoneDrop', 'zoneCancel', 'boardStroke', 'boardClear', 'boardOpen', 'strikes']);

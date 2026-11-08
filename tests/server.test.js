@@ -43,14 +43,17 @@ test('flujo completo cliente-servidor: sorteo privado, turnos, ragdoll y revanch
     await emit(b, 'ready');
     await wait(100);
     assert.equal(a.latest.phase, 'choosing');
-    assert.equal((await emit(a, 'choosePool', { mode: 'dnd' })).ok, true);
-    assert.equal((await emit(b, 'choosePool', { mode: 'bc' })).ok, true);
+    assert.deepEqual(a.latest.draft.pools, ['bc', 'dnd', 'jjk']);
+    assert.equal((await emit(a, 'setDraft', { pools: ['nada'], gameMode: 'guess' })).error, 'POOLS_INVALIDOS');
+    assert.equal((await emit(a, 'setDraft', { pools: ['dnd'], gameMode: 'guess' })).ok, true);
+    assert.equal((await emit(a, 'acceptDraft')).ok, true);
     await wait(50);
     assert.equal(a.latest.phase, 'choosing');
-    assert.equal((await emit(b, 'choosePool', { mode: 'dnd' })).ok, true);
+    assert.deepEqual(b.latest.draft.pools, ['dnd']);
+    assert.equal((await emit(b, 'acceptDraft')).ok, true);
     await wait(100);
     assert.equal(a.latest.phase, 'playing');
-    assert.equal(a.latest.mode, 'dnd');
+    assert.deepEqual(a.latest.pools, ['dnd']);
     assert.ok(a.latest.myCharacter.startsWith('dnd-'));
     assert.equal(a.latest.opponentCharacter, undefined);
     assert.equal(JSON.stringify(a.latest).includes(b.latest.myCharacter), false);
@@ -86,6 +89,25 @@ test('flujo completo cliente-servidor: sorteo privado, turnos, ragdoll y revanch
     await wait(100);
     assert.equal(a.latest.phase, 'playing');
     assert.deepEqual(a.latest.players.map(p => p.lives), [2, 2]);
+
+    // cambio a grupo social con JJK, aceptado por el rival
+    assert.equal((await emit(a, 'proposeChange', { pools: ['jjk'], gameMode: 'group' })).ok, true);
+    await wait(50);
+    assert.equal(b.latest.change.gameMode, 'group');
+    assert.equal((await emit(b, 'answerChange', { yes: true })).ok, true);
+    await wait(50);
+    assert.equal(a.latest.phase, 'setup');
+    await emit(a, 'setPhrase', { text: 'pelo blanco' });
+    await emit(b, 'setPhrase', { text: 'son profes' });
+    await wait(50);
+    assert.equal(a.latest.phase, 'playing');
+    const p1 = a.latest.turn === 0 ? a : b;
+    const p2 = p1 === a ? b : a;
+    assert.equal((await emit(p1, 'propose', { characterId: 'jjk-satoru-gojo' })).ok, true);
+    assert.equal((await emit(p2, 'verdict', { valid: true })).ok, true);
+    await wait(50);
+    assert.ok(p1.events.some(e => e.ev === 'proposalResult' && e.data.valid));
+    assert.deepEqual(p1.latest.players[p2.latest.me].confirmed, ['jjk-satoru-gojo']);
   } finally {
     [a, b, c].forEach(s => s.close());
     server.close();

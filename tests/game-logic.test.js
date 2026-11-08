@@ -47,24 +47,138 @@ test('los personajes se sortean por separado: pueden coincidir y siempre salen d
   assert.ok(same > 0, 'con pool chico tiene que haber coincidencias');
 });
 
-test('elegir pool: arranca solo cuando los dos eligen el mismo modo', () => {
+const POOLS = { bc: ['x', 'y'], dnd: ['p', 'q'], jjk: ['j1', 'j2'] };
+function choosing() {
   const room = G.createRoom('ABCD');
   G.addPlayer(room, 'a', 'Ana');
   G.addPlayer(room, 'b', 'Beto');
   G.setReady(room, 'a');
   G.setReady(room, 'b');
-  G.beginChoosing(room);
+  G.beginChoosing(room, POOLS);
+  return room;
+}
+
+test('configuración: arranca con todos los pools tildados y modo adivinar personaje', () => {
+  const room = choosing();
   assert.equal(room.phase, 'choosing');
-  const pools = { bc: ['x', 'y'], dnd: ['p', 'q'], mix: ['x', 'y', 'p', 'q'] };
-  assert.throws(() => G.choosePool(room, 'a', 'otro', pools), /MODO_INVALIDO/);
-  assert.equal(G.choosePool(room, 'a', 'bc', pools).started, false);
-  assert.equal(G.choosePool(room, 'b', 'dnd', pools).started, false);
-  assert.equal(room.phase, 'choosing');
-  assert.equal(G.choosePool(room, 'b', 'bc', pools).started, true);
+  assert.deepEqual(room.draft, { pools: ['bc', 'dnd', 'jjk'], gameMode: 'guess' });
+});
+
+test('configuración: pools múltiples, validación y aceptación de los dos', () => {
+  const room = choosing();
+  assert.throws(() => G.setDraft(room, 'a', { pools: [], gameMode: 'guess' }, POOLS), /POOLS_INVALIDOS/);
+  assert.throws(() => G.setDraft(room, 'a', { pools: ['bc', 'otro'], gameMode: 'guess' }, POOLS), /POOLS_INVALIDOS/);
+  assert.throws(() => G.setDraft(room, 'a', { pools: ['bc'], gameMode: 'raro' }, POOLS), /MODO_INVALIDO/);
+  G.setDraft(room, 'a', { pools: ['jjk', 'bc'], gameMode: 'guess' }, POOLS);
+  assert.equal(G.acceptDraft(room, 'a', POOLS).started, false);
+  // si el otro cambia algo, se anulan las aceptaciones
+  G.setDraft(room, 'b', { pools: ['bc', 'jjk'], gameMode: 'guess' }, POOLS);
+  assert.deepEqual(room.accept, [false, false]);
+  G.acceptDraft(room, 'a', POOLS);
+  assert.equal(G.acceptDraft(room, 'b', POOLS).started, true);
   assert.equal(room.phase, 'playing');
-  assert.equal(room.mode, 'bc');
-  assert.ok(['x', 'y'].includes(room.players[0].character));
-  assert.equal(G.viewFor(room, 'a').mode, 'bc');
+  assert.deepEqual(room.pools, ['bc', 'jjk']);
+  assert.deepEqual(room.pool.sort(), ['j1', 'j2', 'x', 'y']);
+  assert.ok(room.pool.includes(room.players[0].character));
+  assert.deepEqual(G.viewFor(room, 'a').pools, ['bc', 'jjk']);
+});
+
+function groupPlaying() {
+  const room = choosing();
+  G.setDraft(room, 'a', { pools: ['bc', 'dnd'], gameMode: 'group' }, POOLS);
+  G.acceptDraft(room, 'a', POOLS);
+  G.acceptDraft(room, 'b', POOLS);
+  return room;
+}
+
+test('grupo social: cada uno escribe su frase secreta y recién ahí se juega', () => {
+  const room = groupPlaying();
+  assert.equal(room.phase, 'setup');
+  assert.equal(room.players[0].character, null);
+  assert.throws(() => G.setPhrase(room, 'a', '  '), /FRASE_INVALIDA/);
+  assert.equal(G.setPhrase(room, 'a', 'pelo negro').started, false);
+  assert.throws(() => G.ask(room, 'a', 'hola'), /RONDA_NO_ACTIVA/);
+  assert.equal(G.setPhrase(room, 'b', 'murieron').started, true);
+  assert.equal(room.phase, 'playing');
+  const va = G.viewFor(room, 'a');
+  assert.equal(va.myPhrase, 'pelo negro');
+  assert.equal(va.opponentPhrase, undefined);
+  assert.equal(JSON.stringify(va).includes('murieron'), false);
+  assert.equal(va.players[1].hasPhrase, true);
+});
+
+test('grupo social: proponer personaje, el rival lo valida o lo rechaza y pasa el turno', () => {
+  const room = groupPlaying();
+  G.setPhrase(room, 'a', 'pelo negro');
+  G.setPhrase(room, 'b', 'murieron');
+  const t = room.turn, me = idAt(room, t), rival = idAt(room, 1 - t);
+  assert.throws(() => G.guess(room, me, 'x'), /MODO_INCORRECTO/);
+  assert.throws(() => G.propose(room, rival, 'x'), /NO_ES_TU_TURNO/);
+  assert.throws(() => G.propose(room, me, 'zzz'), /PERSONAJE_INVALIDO/);
+  G.propose(room, me, 'x');
+  assert.equal(room.awaiting, 'verdict');
+  assert.throws(() => G.ask(room, me, 'hola'), /ESPERANDO_RESPUESTA/);
+  assert.throws(() => G.verdict(room, me, true), /NO_PUEDES_RESPONDER/);
+  const r = G.verdict(room, rival, true);
+  assert.deepEqual(r, { by: t, characterId: 'x', valid: true });
+  assert.deepEqual(room.players[1 - t].confirmed, ['x']);
+  assert.equal(room.turn, 1 - t);
+  assert.equal(room.awaiting, 'ask');
+  // ahora propone el otro y se rechaza: sin vidas, solo pasa el turno
+  G.propose(room, rival, 'p');
+  G.verdict(room, me, false);
+  assert.deepEqual(room.players[t].rejected, ['p']);
+  assert.deepEqual(room.players.map(p => p.lives), [2, 2]);
+  assert.equal(room.turn, t);
+  assert.throws(() => G.propose(room, me, 'x'), /YA_PROPUESTO/);
+});
+
+test('grupo social: adivinar la frase gana la ronda solo si el rival la da por correcta', () => {
+  const room = groupPlaying();
+  G.setPhrase(room, 'a', 'pelo negro');
+  G.setPhrase(room, 'b', 'murieron');
+  const t = room.turn, me = idAt(room, t), rival = idAt(room, 1 - t);
+  G.guessPhrase(room, me, 'son pelados');
+  assert.equal(room.awaiting, 'phraseVerdict');
+  assert.throws(() => G.judgePhrase(room, me, true), /NO_PUEDES_RESPONDER/);
+  assert.equal(G.judgePhrase(room, rival, false).correct, false);
+  assert.equal(room.turn, 1 - t);
+  G.skip(room, rival);
+  G.guessPhrase(room, me, 'están muertos');
+  const r = G.judgePhrase(room, rival, true);
+  assert.equal(r.roundOver, true);
+  assert.equal(room.phase, 'roundOver');
+  assert.equal(room.winner, t);
+  assert.equal(room.wins[t], 1);
+  assert.ok(G.viewFor(room, me).opponentPhrase);
+  // revancha en grupo social vuelve a pedir frases
+  G.rematchVote(room, 'a', true);
+  G.rematchVote(room, 'b', true);
+  assert.equal(room.phase, 'setup');
+  assert.equal(room.players[0].phrase, null);
+  assert.deepEqual(room.players[0].confirmed, []);
+});
+
+test('cambio de modo/pools en plena partida: requiere que el otro acepte', () => {
+  const room = choosing();
+  G.acceptDraft(room, 'a', POOLS);
+  G.acceptDraft(room, 'b', POOLS);
+  assert.equal(room.gameMode, 'guess');
+  const round = room.round;
+  assert.throws(() => G.answerChange(room, 'b', true, POOLS), /SIN_PROPUESTA/);
+  G.proposeChange(room, 'a', { pools: ['jjk'], gameMode: 'group' }, POOLS);
+  assert.throws(() => G.answerChange(room, 'a', true, POOLS), /NO_PUEDES_RESPONDER/);
+  assert.equal(G.answerChange(room, 'b', false, POOLS).applied, false);
+  assert.equal(room.change, null);
+  assert.equal(room.gameMode, 'guess');
+  G.proposeChange(room, 'a', { pools: ['jjk'], gameMode: 'group' }, POOLS);
+  room.wins = [3, 1];
+  assert.equal(G.answerChange(room, 'b', true, POOLS).applied, true);
+  assert.equal(room.gameMode, 'group');
+  assert.deepEqual(room.pools, ['jjk']);
+  assert.equal(room.phase, 'setup');
+  assert.equal(room.round, round + 1);
+  assert.deepEqual(room.wins, [3, 1]); // el marcador se conserva
 });
 
 test('el sorteo es realmente aleatorio: aparecen todos los personajes', () => {
@@ -184,7 +298,6 @@ test('revancha: ambos aceptan -> nueva ronda con nuevo sorteo y vidas', () => {
   assert.equal(res.started, true);
   assert.equal(room.phase, 'playing');
   assert.deepEqual(room.players.map(p => p.lives), [2, 2]);
-  assert.notEqual(room.players[0].character, room.players[1].character);
   assert.equal(room.turn, 1 - t); // empieza quien perdió
   assert.equal(room.wins[t], 1); // el marcador se conserva
 });

@@ -11,7 +11,22 @@
     PREGUNTA_INVALIDA: 'Escribí una pregunta (máximo 200 caracteres).',
     RONDA_NO_ACTIVA: 'La ronda no está activa.',
     DESCONECTADO: 'Sin conexión. Reintentá en un momento.',
+    POOLS_INVALIDOS: 'Tiene que quedar al menos un grupo de personajes tildado.',
+    MODO_INVALIDO: 'Modo de juego inválido.',
+    FRASE_INVALIDA: 'Escribí una frase (máximo 80 caracteres).',
+    YA_PROPUESTO: 'Ese personaje ya fue propuesto para ese grupo.',
+    MODO_INCORRECTO: 'Eso no se puede hacer en este modo de juego.',
+    SIN_PROPUESTA: 'Ya no hay ninguna propuesta pendiente.',
+    NO_PUEDES_RESPONDER: 'Ahora no podés responder eso.',
   };
+  const POOL_NAMES = { bc: 'Black Clover', dnd: 'Torre (D&D)', jjk: 'Jujutsu Kaisen' };
+  const GM_NAMES = { guess: 'Adivinar personaje', group: 'Grupo social' };
+  const GM_DESC = {
+    guess: 'Cada uno tiene un personaje secreto. Gana quien adivine el del otro (2 vidas).',
+    group: 'Cada uno inventa una frase secreta (ej: “pelo negro”). Proponé personajes al “?” del rival: él decide si entran en su grupo. Gana quien adivine la frase del otro.',
+  };
+  const poolName = k => POOL_NAMES[k] || k;
+  const cfgText = c => c ? GM_NAMES[c.gameMode] + ' · ' + c.pools.map(poolName).join(' + ') : '';
   const errText = code => ERR[code] || 'Algo salió mal. Probá de nuevo.';
 
   let chars = [];
@@ -23,9 +38,11 @@
   let celebrationUntil = 0;
   const struck = new Set();
   let rivalStruck = [];
-  let galleryMode = null;
+  let galleryKey = null;
   let connBanner = '';
   let toastTimer = null;
+  let phraseMode = false;
+  let changeOpen = false;
 
   try { session = JSON.parse(sessionStorage.getItem('session') || 'null'); } catch (e) { session = null; }
   const saveSession = () => { try { sessionStorage.setItem('session', JSON.stringify(session)); } catch (e) { /* sin storage */ } };
@@ -94,11 +111,11 @@
   $('btnMute').textContent = Sfx.isMuted() ? '🔇' : '🔊';
 
   // ---------- Galería ----------
-  function buildGallery(mode) {
+  function buildGallery(pools) {
     const g = $('gallery');
     g.innerHTML = '';
-    galleryMode = mode || null;
-    chars.filter(c => !mode || mode === 'mix' || c.pool === mode).forEach(c => {
+    galleryKey = pools ? pools.join(',') : null;
+    chars.filter(c => !pools || pools.includes(c.pool)).forEach(c => {
       const d = document.createElement('div');
       d.className = 'gcard';
       d.dataset.id = c.id;
@@ -106,11 +123,17 @@
       g.appendChild(d);
     });
   }
+  const isGroup = () => !!state && state.gameMode === 'group';
   function updateAway() {
     const away = new Set(Ragdoll.ids());
+    // grupo social: marco lo que ya sé del grupo del rival
+    const opp = isGroup() && state.players[1 - state.me];
+    const yes = new Set(opp ? opp.confirmed : []), no = new Set(opp ? opp.rejected : []);
     document.querySelectorAll('.gcard').forEach(el => {
       el.classList.toggle('away', away.has(el.dataset.id));
       el.classList.toggle('struck', struck.has(el.dataset.id));
+      el.classList.toggle('gyes', yes.has(el.dataset.id));
+      el.classList.toggle('gno', no.has(el.dataset.id));
     });
   }
   const canGuess = () => !!state && state.phase === 'playing' && state.turn === state.me && state.awaiting === 'ask' && !guessPending;
@@ -127,8 +150,20 @@
   });
 
   const sendStrikes = () => Net.send('strikes', { ids: [...struck] });
+  const thumb = (id, cls) => '<div class="sk ' + cls + '" title="' + esc(charMap[id].name) + '"><img src="' + esc(charMap[id].file) + '" alt=""></div>';
   function renderStrikes() {
     if (!state) return;
+    if (isGroup()) {
+      // tabla del grupo de cada jugador: los validados (y abajo los rechazados)
+      [0, 1].forEach(i => {
+        const p = state.players[i];
+        const yes = p.confirmed.filter(id => charMap[id]), no = p.rejected.filter(id => charMap[id]);
+        $('strikes' + i).innerHTML = yes.map(id => thumb(id, 'ok')).join('') +
+          (no.length ? '<div class="sk-sep">No pertenecen</div>' + no.map(id => thumb(id, '')).join('') : '');
+        $('stt' + i).textContent = yes.length || no.length ? 'En el grupo (' + yes.length + ')' : 'Grupo vacío';
+      });
+      return;
+    }
     const fill = (i, ids) => {
       $('strikes' + i).innerHTML = ids.filter(id => charMap[id]).map(id =>
         '<div class="sk" title="' + esc(charMap[id].name) + '"><img src="' + esc(charMap[id].file) + '" alt=""></div>').join('');
@@ -184,7 +219,12 @@
     const opp = state.players[1 - state.me];
     $('cap0').textContent = '';
     $('cap1').textContent = '';
-    if (!zoneLocal && Ragdoll.hasZoneCard() && opp) $('cap' + state.me).textContent = opp.name + ' va a intentar adivinar…';
+    if (!zoneLocal && Ragdoll.hasZoneCard() && opp) {
+      $('cap' + state.me).textContent = isGroup()
+        ? (state.awaiting === 'verdict' ? '¿Pertenece a tu grupo? Decidí abajo del chat.' : opp.name + ' va a proponer un personaje…')
+        : opp.name + ' va a intentar adivinar…';
+    }
+    if (zoneLocal && guessPending && isGroup()) $('cap' + tgt).textContent = 'Esperando que ' + opp.name + ' decida…';
     $('box' + tgt).classList.toggle('disabled', !canGuess());
     $('box' + state.me).classList.remove('disabled');
   }
@@ -194,13 +234,15 @@
     if (!id || guessPending) return;
     guessPending = true;
     updateZoneUI();
-    Net.send('guess', { characterId: id }, r => {
-      guessPending = false;
+    // grupo social: la carta queda en el "?" hasta que el rival la valide (llega proposalResult)
+    Net.send(isGroup() ? 'propose' : 'guess', { characterId: id }, r => {
       if (r.error) {
+        guessPending = false;
         toast(errText(r.error));
         Ragdoll.sendHome(id);
+        Net.send('dragEnd', { id, mode: 'home' });
         zoneLocal = null;
-      }
+      } else if (!isGroup()) guessPending = false;
       updateZoneUI();
     });
   };
@@ -222,6 +264,33 @@
       if (r.error) toast(errText(r.error)); else $('askInput').value = '';
     });
   };
+  $('btnPhrase').onclick = () => { phraseMode = true; render(); $('phraseGuessInput').focus(); };
+  $('btnPhraseBack').onclick = () => { phraseMode = false; render(); };
+  $('phraseForm').onsubmit = e => {
+    e.preventDefault();
+    const text = $('phraseGuessInput').value.trim();
+    if (!text) return;
+    Net.send('guessPhrase', { text }, r => {
+      if (r.error) return toast(errText(r.error));
+      $('phraseGuessInput').value = '';
+      phraseMode = false;
+      render();
+    });
+  };
+  $('verdictBtns').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]');
+    if (b) Net.send('verdict', { valid: b.dataset.v === '1' }, r => r.error && toast(errText(r.error)));
+  });
+  $('phraseBtns').addEventListener('click', e => {
+    const b = e.target.closest('button[data-c]');
+    if (b) Net.send('judgePhrase', { correct: b.dataset.c === '1' }, r => r.error && toast(errText(r.error)));
+  });
+  $('setupForm').onsubmit = e => {
+    e.preventDefault();
+    const text = $('setupInput').value.trim();
+    if (!text) return;
+    Net.send('setPhrase', { text }, r => r.error && toast(errText(r.error)));
+  };
   $('btnSkip').onclick = () => Net.send('skip', {}, r => r.error && toast(errText(r.error)));
   $('answerBtns').addEventListener('click', e => {
     const b = e.target.closest('button[data-a]');
@@ -231,25 +300,71 @@
   // ---------- Render ----------
   const hearts = n => '<span>' + '♥'.repeat(Math.max(0, n)) + '</span><span class="lost">' + '♥'.repeat(Math.max(0, 2 - n)) + '</span>';
 
-  const MODE_NAMES = { bc: 'Black Clover', dnd: 'Torre (D&D)', mix: 'Ambas mezcladas' };
-  document.querySelectorAll('.btn.mode').forEach(b => {
-    b.onclick = () => Net.send('choosePool', { mode: b.dataset.mode }, r => r.error && toast(errText(r.error)));
+  // ---------- Configuración (pools + modo) ----------
+  const poolIds = () => [...new Set(chars.map(c => c.pool))];
+  function cfgFormHTML(cfg, name) {
+    const count = k => chars.filter(c => c.pool === k).length;
+    return '<div class="cfg-group"><h3>Personajes</h3>' + poolIds().map(k =>
+      '<label class="chk"><input type="checkbox" data-pool="' + esc(k) + '"' + (cfg.pools.includes(k) ? ' checked' : '') + '>' +
+      '<span>' + esc(poolName(k)) + ' <small>(' + count(k) + ')</small></span></label>').join('') + '</div>' +
+      '<div class="cfg-group"><h3>Modo de juego</h3>' + Object.keys(GM_NAMES).map(m =>
+      '<label class="chk gm"><input type="radio" name="' + name + '" data-gm="' + m + '"' + (cfg.gameMode === m ? ' checked' : '') + '>' +
+      '<span><b>' + GM_NAMES[m] + '</b><small>' + GM_DESC[m] + '</small></span></label>').join('') + '</div>';
+  }
+  function readCfg(box) {
+    const pools = [...box.querySelectorAll('input[data-pool]:checked')].map(i => i.dataset.pool);
+    const gm = box.querySelector('input[data-gm]:checked');
+    return { pools, gameMode: gm ? gm.dataset.gm : 'guess' };
+  }
+  function fillCfg(box, cfg, name) {
+    const key = JSON.stringify(cfg);
+    if (box.dataset.key === key) return;
+    box.dataset.key = key;
+    box.innerHTML = cfgFormHTML(cfg, name);
+  }
+  $('cfgForm').addEventListener('change', () => {
+    const cfg = readCfg($('cfgForm'));
+    if (!cfg.pools.length) { toast(ERR.POOLS_INVALIDOS); $('cfgForm').dataset.key = ''; return render(); }
+    Net.send('setDraft', cfg, r => { if (r.error) { toast(errText(r.error)); $('cfgForm').dataset.key = ''; render(); } });
   });
+  $('btnAccept').onclick = () => Net.send('acceptDraft', {}, r => r.error && toast(errText(r.error)));
+
+  // Cambio en plena partida
+  function openChange() {
+    if (!state || state.change) return;
+    changeOpen = true;
+    $('changeForm').dataset.key = '';
+    fillCfg($('changeForm'), { pools: state.pools, gameMode: state.gameMode }, 'gmChange');
+    render();
+  }
+  $('btnChange').onclick = openChange;
+  $('btnChangeOver').onclick = openChange;
+  $('btnChangeClose').onclick = () => { changeOpen = false; render(); };
+  $('btnChangeSend').onclick = () => {
+    const cfg = readCfg($('changeForm'));
+    if (!cfg.pools.length) return toast(ERR.POOLS_INVALIDOS);
+    Net.send('proposeChange', cfg, r => {
+      if (r.error) return toast(errText(r.error));
+      changeOpen = false;
+      render();
+    });
+  };
+  $('btnChangeYes').onclick = () => Net.send('answerChange', { yes: true }, r => r.error && toast(errText(r.error)));
+  $('btnChangeNo').onclick = () => Net.send('answerChange', { yes: false }, r => r.error && toast(errText(r.error)));
+  $('btnChangeCancel').onclick = () => Net.send('answerChange', { yes: false }, r => r.error && toast(errText(r.error)));
 
   function renderLobby() {
     showScreen('Lobby');
     const s = state;
     const choosing = s.phase === 'choosing';
-    $('modeBox').classList.toggle('hidden', !choosing);
-    if (choosing) {
-      const mine = s.picks[s.me], theirs = s.picks[1 - s.me];
-      document.querySelectorAll('.btn.mode').forEach(b => {
-        b.classList.toggle('picked', b.dataset.mode === mine);
-        b.classList.toggle('rival', b.dataset.mode === theirs && theirs !== mine);
-      });
+    $('cfgBox').classList.toggle('hidden', !choosing);
+    if (choosing && s.draft) {
+      fillCfg($('cfgForm'), s.draft, 'gmDraft');
       const opp = s.players[1 - s.me].name;
-      $('modeMsg').textContent = !mine ? (theirs ? opp + ' ya eligió. ¡Elegí vos!' : 'Elegí un modo.')
-        : (!theirs ? 'Esperando que ' + opp + ' elija…' : opp + ' eligió ' + MODE_NAMES[theirs] + '. Tienen que coincidir: cambiá tu voto o esperá que cambie.');
+      const mine = s.accept[s.me], theirs = s.accept[1 - s.me];
+      $('btnAccept').disabled = mine;
+      $('btnAccept').textContent = mine ? '✔ Aceptaste' : 'Aceptar configuración';
+      $('cfgMsg').textContent = mine ? 'Esperando que ' + opp + ' acepte…' : theirs ? opp + ' ya aceptó. ¡Aceptá vos!' : 'Tildá los grupos de personajes y elegí el modo.';
     }
     $('lobbyCode').textContent = s.code;
     $('lobbyLink').value = roomLink();
@@ -266,6 +381,12 @@
 
   function turnText(s) {
     const opp = s.players[1 - s.me].name;
+    if (s.gameMode === 'group') {
+      const pc = s.pending && s.pending.characterId && charMap[s.pending.characterId];
+      if (s.awaiting === 'verdict') return s.turn === s.me ? 'Esperando que ' + opp + ' decida si ' + (pc ? pc.name : 'el personaje') + ' es de su grupo…' : opp + ' propone a ' + (pc ? pc.name : '?') + ': ¿es de tu grupo?';
+      if (s.awaiting === 'phraseVerdict') return s.turn === s.me ? 'Esperando que ' + opp + ' diga si acertaste la frase…' : opp + ' arriesga: “' + s.pending.text + '”. ¿Es tu frase?';
+      if (s.turn === s.me && s.awaiting === 'ask') return 'Tu turno: preguntá, arrastrá un personaje al “?” para proponerlo o adiviná la frase';
+    }
     if (s.turn === s.me) return s.awaiting === 'ask' ? 'Tu turno: preguntá, cedé el turno o arrastrá un personaje al “?”' : 'Esperando la respuesta de ' + opp + '…';
     return s.awaiting === 'ask' ? 'Turno de ' + opp + '…' : opp + ' preguntó. ¡Respondé!';
   }
@@ -276,8 +397,18 @@
     const p = s.players[i];
     const mine = i === s.me;
     $('pname' + i).textContent = p.name + (mine ? ' (vos)' : '');
-    $('hearts' + i).innerHTML = hearts(p.lives);
+    $('hearts' + i).innerHTML = s.gameMode === 'group' ? '' : hearts(p.lives);
     const box = $('box' + i);
+    if (s.gameMode === 'group') {
+      const key = mine ? 'p:' + (s.myPhrase || '') : 'tg';
+      if (box.dataset.key !== key) {
+        box.dataset.key = key;
+        box.className = 'box ' + (mine ? 'mine phrase' : 'target');
+        box.innerHTML = mine ? '<span class="ph">' + esc(s.myPhrase || '…') + '</span>' : '<span class="q">?</span>';
+      }
+      $('boxname' + i).textContent = mine ? 'Tu frase secreta' : (p.hasPhrase ? 'Grupo a adivinar' : 'Escribiendo su frase…');
+      return;
+    }
     const ch = mine ? (charMap[s.myCharacter] || { name: '?', file: '' }) : null;
     const key = mine ? 'm:' + s.myCharacter : 't';
     if (box.dataset.key !== key) {
@@ -299,15 +430,54 @@
     const playing = s.phase === 'playing';
     const myTurn = playing && s.turn === s.me;
     $('turnInfo').textContent = playing ? turnText(s) : '';
-    $('turnInfo').classList.toggle('mine', myTurn);
-    $('askForm').classList.toggle('hidden', !(myTurn && s.awaiting === 'ask'));
+    $('turnInfo').classList.toggle('mine', myTurn || (playing && !myTurn && (s.awaiting === 'verdict' || s.awaiting === 'phraseVerdict')));
+    const group = s.gameMode === 'group';
+    if (!(myTurn && s.awaiting === 'ask' && group)) phraseMode = false;
+    $('askForm').classList.toggle('hidden', !(myTurn && s.awaiting === 'ask') || phraseMode);
+    $('btnPhrase').classList.toggle('hidden', !group);
+    $('phraseForm').classList.toggle('hidden', !phraseMode);
     $('answerBtns').classList.toggle('hidden', !(playing && !myTurn && s.awaiting === 'answer'));
+    $('verdictBtns').classList.toggle('hidden', !(playing && !myTurn && s.awaiting === 'verdict'));
+    $('phraseBtns').classList.toggle('hidden', !(playing && !myTurn && s.awaiting === 'phraseVerdict'));
+    $('cfgInfo').textContent = cfgText(s);
+    $('galhint').textContent = 'Clic izquierdo: tachar · Clic derecho (mantener): agarrar y arrastrar · Soltá en el “?” del rival para ' + (group ? 'proponerlo para su grupo' : 'adivinar');
+    $('btnChange').disabled = !!s.change || s.phase === 'ended';
+
+    // grupo social: escribir la frase secreta
+    const setup = s.phase === 'setup';
+    $('setupBox').classList.toggle('hidden', !setup);
+    if (setup) {
+      const opp = s.players[1 - s.me];
+      $('setupMsg').textContent = s.myPhrase
+        ? (opp.hasPhrase ? '' : 'Guardaste “' + s.myPhrase + '”. Esperando la frase de ' + opp.name + '… (la podés corregir)')
+        : (opp.hasPhrase ? opp.name + ' ya escribió la suya.' : '');
+    }
+
+    // cambio de modo / pools
+    $('changeModal').classList.toggle('hidden', !changeOpen || !!s.change);
+    $('changeAsk').classList.toggle('hidden', !s.change);
+    if (s.change) {
+      const mineCh = s.change.by === s.me;
+      const by = s.players[s.change.by].name;
+      $('changeAskTitle').textContent = mineCh ? 'Propuesta enviada' : by + ' quiere cambiar la partida';
+      $('changeAskText').textContent = (mineCh ? 'Esperando que ' + s.players[1 - s.me].name + ' acepte: ' : 'Nueva configuración: ') + cfgText(s.change) + '. Arranca una ronda nueva.';
+      $('changeAskBtns').classList.toggle('hidden', mineCh);
+      $('changeWaitBtns').classList.toggle('hidden', !mineCh);
+    }
 
     const log = $('chatLog');
     log.innerHTML = s.chat.map(m => {
       const who = esc(s.players[m.from].name);
       if (m.kind === 'question') return '<div class="msg' + (m.from === s.me ? ' mine' : '') + '"><small>' + who + '</small>' + esc(m.text) + '</div>';
       if (m.kind === 'skip') return '<div class="msg ans ns">' + who + ' ' + esc(m.text) + '</div>';
+      if (m.kind === 'propose') {
+        const c = charMap[m.characterId];
+        return '<div class="msg sys' + (m.from === s.me ? ' mine' : '') + '"><small>' + who + ' propone para el grupo</small>' +
+          (c ? '<img src="' + esc(c.file) + '" alt=""> ' + esc(c.name) : '?') + '</div>';
+      }
+      if (m.kind === 'verdict') return '<div class="msg ans ' + (m.text === 'Válido' ? 'si' : 'no') + '">' + who + ': ' + esc(m.text) + '</div>';
+      if (m.kind === 'phraseGuess') return '<div class="msg' + (m.from === s.me ? ' mine' : '') + '"><small>' + who + ' arriesga la frase</small>“' + esc(m.text) + '”</div>';
+      if (m.kind === 'phraseVerdict') return '<div class="msg ans ' + (m.text === 'Incorrecto' ? 'no' : 'si') + '">' + who + ': ' + esc(m.text) + '</div>';
       const cls = m.text === 'Sí' ? 'si' : m.text === 'No' ? 'no' : 'ns';
       return '<div class="msg ans ' + cls + '">' + who + ': ' + esc(m.text) + '</div>';
     }).join('');
@@ -315,7 +485,7 @@
 
     Board.setVisible(true);
 
-    if (s.mode && s.mode !== galleryMode) buildGallery(s.mode);
+    if (s.pools.length && s.pools.join(',') !== galleryKey) buildGallery(s.pools);
     updateAway();
     renderStrikes();
     updateZoneUI();
@@ -325,16 +495,24 @@
   function renderOverlay() {
     const s = state;
     const over = s.phase === 'roundOver' || s.phase === 'ended';
-    if (!over || Date.now() < celebrationUntil) {
+    if (!over || Date.now() < celebrationUntil || s.change || changeOpen) {
       $('overlay').classList.add('hidden');
       return;
     }
     const opp = s.players[1 - s.me];
     const won = s.winner === s.me;
     $('overTitle').textContent = s.phase === 'ended' ? 'Partida terminada' : (won ? '¡Ganaste la ronda!' : 'Perdiste la ronda');
-    $('overSub').textContent = won
-      ? (opp.lives === 0 ? opp.name + ' se quedó sin vidas.' : '¡Adivinaste el personaje de ' + opp.name + '!')
-      : (s.players[s.me].lives === 0 ? 'Te quedaste sin vidas.' : opp.name + ' adivinó tu personaje.');
+    const group = s.gameMode === 'group';
+    $('overSub').textContent = group
+      ? (won ? '¡Adivinaste la frase del grupo de ' + opp.name + '!' : opp.name + ' adivinó la frase de tu grupo.')
+      : won
+        ? (opp.lives === 0 ? opp.name + ' se quedó sin vidas.' : '¡Adivinaste el personaje de ' + opp.name + '!')
+        : (s.players[s.me].lives === 0 ? 'Te quedaste sin vidas.' : opp.name + ' adivinó tu personaje.');
+    $('overlay').querySelector('.reveal').classList.toggle('hidden', group);
+    $('revPhrases').classList.toggle('hidden', !group);
+    if (group) {
+      $('revPhrases').innerHTML = '<div><small>Tu frase</small>“' + esc(s.myPhrase) + '”</div><div><small>Frase de ' + esc(opp.name) + '</small>“' + esc(s.opponentPhrase) + '”</div>';
+    }
     const mine = charMap[s.myCharacter] || { name: '?', file: '' };
     const theirs = charMap[s.opponentCharacter] || { name: '?', file: '' };
     $('revMine').src = mine.file;
@@ -345,7 +523,8 @@
 
     const ended = s.phase === 'ended';
     const voted = s.rematch[s.me] === true;
-    $('overBtns').classList.toggle('hidden', ended || voted);
+    $('overBtns').classList.toggle('hidden', ended || voted || !!s.change);
+    $('btnChangeOver').classList.toggle('hidden', !!s.change);
     $('overWait').classList.toggle('hidden', ended || !voted);
     $('overWait').textContent = 'Esperando que ' + opp.name + ' responda…';
     $('btnHome').classList.toggle('hidden', !ended);
@@ -358,7 +537,10 @@
 
   function render() {
     if (!state) { showScreen('Home'); Board.setVisible(false); updateBanner(); return; }
-    if (state.phase === 'lobby' || state.phase === 'choosing') renderLobby(); else renderGame();
+    if (state.phase === 'lobby' || state.phase === 'choosing') {
+      renderLobby();
+      ['setupBox', 'changeModal', 'changeAsk'].forEach(m => $(m).classList.add('hidden'));
+    } else renderGame();
     updateBanner();
   }
 
@@ -366,16 +548,16 @@
   Net.on('state', s => {
     const prev = state;
     state = s;
-    if (s.phase === 'playing' && (!prev || prev.phase !== 'playing')) {
-      Ragdoll.clearAll();
-      Board.clear();
-      struck.clear();
-      rivalStruck = [];
+    const newRound = !prev || prev.round !== s.round;
+    if (newRound || (s.phase === 'playing' && prev.phase !== 'playing')) {
+      // ronda nueva (revancha o cambio de modo/pools) o arranque del juego tras escribir las frases
+      if (newRound) { Ragdoll.clearAll(); Board.clear(); struck.clear(); rivalStruck = []; }
       zoneLocal = null;
       guessPending = false;
       celebrationUntil = 0;
-      Sfx.turn();
-    } else if (prev && s.phase === 'playing') {
+      if (newRound) { changeOpen = false; $('setupInput').value = ''; }
+      if (s.phase === 'playing') Sfx.turn();
+    } else if (prev && s.phase === 'playing' && prev.chat && s.chat) {
       const myMove = (s.turn === s.me && s.awaiting === 'ask') || (s.turn !== s.me && s.awaiting === 'answer');
       const wasMyMove = (prev.turn === prev.me && prev.awaiting === 'ask') || (prev.turn !== prev.me && prev.awaiting === 'answer');
       if (myMove && !wasMyMove) Sfx.turn();
@@ -392,6 +574,13 @@
   Net.on('dragEnd', d => Ragdoll.remoteEnd(d));
   Net.on('zoneDrop', d => { Ragdoll.remoteZone(d); updateZoneUI(); });
   Net.on('zoneCancel', d => { Ragdoll.eject(d.id, state ? state.me : 0); updateZoneUI(); });
+  // Grupo social: el rival decidió sobre el personaje propuesto.
+  Net.on('proposalResult', ({ by, characterId, valid }) => {
+    const mine = state && by === state.me;
+    if (valid) { Ragdoll.sendHome(characterId); Sfx.good(); } else { Ragdoll.eject(characterId, 1 - by); Sfx.bad(); }
+    if (mine) { zoneLocal = null; guessPending = false; }
+    updateZoneUI();
+  });
   Net.on('guessResult', ({ by, characterId, correct }) => {
     const mine = state && by === state.me;
     const side = 1 - by; // el recuadro "?" estaba del lado del rival del que adivinó

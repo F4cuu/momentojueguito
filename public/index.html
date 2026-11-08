@@ -38,15 +38,12 @@
     <ul id="lobbyPlayers" class="plist"></ul>
     <button id="btnReady" class="btn gold">¡Listo!</button>
     <p id="lobbyMsg" class="hint"></p>
-    <div id="modeBox" class="hidden">
-      <h2>¿Qué pool quieren jugar?</h2>
-      <p class="sub">La partida empieza cuando los dos eligen lo mismo.</p>
-      <div class="modes">
-        <button class="btn mode" data-mode="bc">Black Clover</button>
-        <button class="btn mode" data-mode="dnd">Torre (D&amp;D)</button>
-        <button class="btn mode" data-mode="mix">Ambas mezcladas</button>
-      </div>
-      <p id="modeMsg" class="hint"></p>
+    <div id="cfgBox" class="hidden">
+      <h2>Configurar partida</h2>
+      <p class="sub">Los dos pueden tocar la configuración. Empieza cuando ambos aceptan.</p>
+      <div id="cfgForm" class="cfgform"></div>
+      <button id="btnAccept" class="btn gold">Aceptar configuración</button>
+      <p id="cfgMsg" class="hint"></p>
     </div>
   </div>
 </section>
@@ -57,6 +54,8 @@
     <div class="brand">Grimorio de Adivinanzas</div>
     <div id="score"></div>
     <div class="tools">
+      <span id="cfgInfo"></span>
+      <button id="btnChange" class="btn small" title="Cambiar modo de juego o pools">⚙ Cambiar modo</button>
       <button id="btnCopyGame" class="btn small" title="Copiar link de la sala">Sala <span id="gameCode"></span> ⧉</button>
       <button id="btnMute" class="btn small" title="Sonido">🔊</button>
     </div>
@@ -86,8 +85,22 @@
         <form id="askForm" class="hidden">
           <input id="askInput" maxlength="200" placeholder="Pregunta de Sí/No…" autocomplete="off">
           <button class="btn gold small">Preguntar</button>
+          <button type="button" id="btnPhrase" class="btn small hidden" title="Arriesgar la frase del grupo del rival">Adivinar frase</button>
           <button type="button" id="btnSkip" class="btn small" title="Pasar el turno sin preguntar">Ceder turno</button>
         </form>
+        <form id="phraseForm" class="hidden">
+          <input id="phraseGuessInput" maxlength="80" placeholder="¿Cuál es la frase de su grupo?" autocomplete="off">
+          <button class="btn gold small">Arriesgar</button>
+          <button type="button" id="btnPhraseBack" class="btn small">Volver</button>
+        </form>
+        <div id="verdictBtns" class="hidden">
+          <button class="btn good" data-v="1">Válido: es de mi grupo</button>
+          <button class="btn bad" data-v="0">No válido</button>
+        </div>
+        <div id="phraseBtns" class="hidden">
+          <button class="btn good" data-c="1">¡Es correcta!</button>
+          <button class="btn bad" data-c="0">No es</button>
+        </div>
         <div id="answerBtns" class="hidden">
           <button class="btn good" data-a="Sí">Sí</button>
           <button class="btn bad" data-a="No">No</button>
@@ -95,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div class="galhint">Clic izquierdo: tachar · Clic derecho (mantener): agarrar y arrastrar · Soltá en el “?” del rival para adivinar</div>
+    <div class="galhint" id="galhint">Clic izquierdo: tachar · Clic derecho (mantener): agarrar y arrastrar · Soltá en el “?” del rival para adivinar</div>
     <div id="gallery"></div>
   </main>
 
@@ -149,13 +162,52 @@
       <figure><img id="revMine" alt=""><figcaption id="revMineName"></figcaption></figure>
       <figure><img id="revOpp" alt=""><figcaption id="revOppName"></figcaption></figure>
     </div>
+    <div id="revPhrases" class="rev-phrases hidden"></div>
     <div id="overScore" class="sub"></div>
     <div id="overBtns">
       <button id="btnRematchYes" class="btn gold">¡Otra ronda!</button>
+      <button id="btnChangeOver" class="btn">⚙ Cambiar modo</button>
       <button id="btnRematchNo" class="btn">No, terminar</button>
     </div>
     <p id="overWait" class="hint hidden"></p>
     <button id="btnHome" class="btn gold hidden">Volver al inicio</button>
+  </div>
+</div>
+
+<!-- Grupo social: frase secreta -->
+<div id="setupBox" class="modal hidden">
+  <form id="setupForm" class="panel modal-box">
+    <h2>Grupo social</h2>
+    <p class="sub">Escribí la frase secreta que define tu grupo. Ej: “pelo negro”, “murieron”, “son mayores de edad”, “le ganan a Asta”.</p>
+    <input id="setupInput" maxlength="80" placeholder="Tu frase secreta…" autocomplete="off">
+    <button class="btn gold">Guardar frase</button>
+    <p id="setupMsg" class="hint"></p>
+  </form>
+</div>
+
+<!-- Proponer cambio de modo / pools -->
+<div id="changeModal" class="modal hidden">
+  <div class="panel modal-box">
+    <h2>Cambiar modo o pools</h2>
+    <p class="sub">Tu rival tiene que aceptar. Si acepta, arranca una ronda nueva (el marcador se mantiene).</p>
+    <div id="changeForm" class="cfgform"></div>
+    <div class="modal-btns">
+      <button id="btnChangeSend" class="btn gold">Proponer cambio</button>
+      <button id="btnChangeClose" class="btn">Cancelar</button>
+    </div>
+  </div>
+</div>
+<div id="changeAsk" class="modal hidden">
+  <div class="panel modal-box">
+    <h2 id="changeAskTitle"></h2>
+    <p id="changeAskText" class="sub"></p>
+    <div class="modal-btns" id="changeAskBtns">
+      <button id="btnChangeYes" class="btn gold">Aceptar</button>
+      <button id="btnChangeNo" class="btn">Rechazar</button>
+    </div>
+    <div class="modal-btns" id="changeWaitBtns">
+      <button id="btnChangeCancel" class="btn">Cancelar propuesta</button>
+    </div>
   </div>
 </div>
 
