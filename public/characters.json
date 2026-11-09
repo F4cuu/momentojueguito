@@ -246,6 +246,12 @@
   "pool": "bc"
  },
  {
+  "id": "loropechika",
+  "name": "Loropechika",
+  "file": "personajes/loropechika.webp",
+  "pool": "bc"
+ },
+ {
   "id": "lotus",
   "name": "Lotus",
   "file": "personajes/lotus.webp",
@@ -255,6 +261,12 @@
   "id": "luck",
   "name": "Luck",
   "file": "personajes/luck.webp",
+  "pool": "bc"
+ },
+ {
+  "id": "maggie",
+  "name": "Maggie",
+  "file": "personajes/maggie.webp",
   "pool": "bc"
  },
  {
@@ -453,6 +465,12 @@
   "id": "theresa",
   "name": "Theresa",
   "file": "personajes/theresa.webp",
+  "pool": "bc"
+ },
+ {
+  "id": "undine",
+  "name": "Undine",
+  "file": "personajes/undine.webp",
   "pool": "bc"
  },
  {
