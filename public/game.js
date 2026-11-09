@@ -23,7 +23,7 @@
   const POOL_NAMES = { bc: 'Black Clover', dnd: 'Torre (D&D)', jjk: 'Jujutsu Kaisen' };
   const GM_NAMES = { guess: 'Adivinar personaje', group: 'Grupo social' };
   const GM_DESC = {
-    guess: 'Cada uno tiene un personaje secreto. Gana quien adivine el del otro (2 vidas).',
+    guess: 'Cada uno tiene un personaje secreto. Gana quien adivine el del otro. Vidas infinitas: fallar solo pasa el turno.',
     group: 'Cada uno inventa una frase secreta (ej: “pelo negro”). Proponé personajes al “?” del rival: él decide si entran en su grupo. Gana quien adivine la frase del otro.',
   };
   const poolName = k => POOL_NAMES[k] || k;
@@ -123,6 +123,28 @@
       d.innerHTML = '<img loading="lazy" src="' + esc(c.file) + '" alt=""><span>' + esc(c.name) + '</span>';
       g.appendChild(d);
     });
+  }
+  function flashBox(side, cls, ms) {
+    const box = $('box' + side);
+    box.classList.remove(cls);
+    void box.offsetWidth;
+    box.classList.add(cls);
+    setTimeout(() => box.classList.remove(cls), ms);
+  }
+  // Grietas radiales para cuando la foto se incrusta en el recuadro.
+  function crackSVG() {
+    let d = '';
+    for (let i = 0; i < 9; i++) {
+      let a = (i / 9) * Math.PI * 2 + Math.random() * 0.5, x = 50, y = 50;
+      d += 'M50 50';
+      for (let k = 0; k < 4; k++) {
+        a += (Math.random() - 0.5) * 0.7;
+        const len = 7 + Math.random() * 9;
+        x += Math.cos(a) * len; y += Math.sin(a) * len * 1.3;
+        d += 'L' + x.toFixed(1) + ' ' + y.toFixed(1);
+      }
+    }
+    return '<svg class="crack" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="' + d + '"/></svg>';
   }
   const isGroup = () => !!state && state.gameMode === 'group';
   function updateAway() {
@@ -310,6 +332,27 @@
     if (!text) return;
     Net.send('setPhrase', { text }, r => r.error && toast(errText(r.error)));
   };
+  // ---------- Bloc de notas (privado, se guarda en este navegador por sala y jugador) ----------
+  let notesKey = null;
+  const notesStore = {
+    get(k) { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* sin almacenamiento: solo en memoria */ } },
+  };
+  function renderNotes(s) {
+    const show = !!s && !['lobby', 'choosing'].includes(s.phase);
+    $('notes').classList.toggle('hidden', !show);
+    if (!show) return;
+    $('notes').classList.toggle('right', s.me === 1);
+    $('notes').classList.toggle('left', s.me !== 1);
+    const k = 'notas:' + s.code + ':' + s.me;
+    if (k !== notesKey) { notesKey = k; $('notesText').value = notesStore.get(k); }
+  }
+  $('notesTab').onclick = () => {
+    $('notes').classList.toggle('open');
+    if ($('notes').classList.contains('open')) $('notesText').focus();
+  };
+  $('notesText').addEventListener('input', () => notesKey && notesStore.set(notesKey, $('notesText').value));
+
   $('btnSkip').onclick = () => Net.send('skip', {}, r => r.error && toast(errText(r.error)));
   $('answerBtns').addEventListener('click', e => {
     const b = e.target.closest('button[data-a]');
@@ -317,7 +360,6 @@
   });
 
   // ---------- Render ----------
-  const hearts = n => '<span>' + '♥'.repeat(Math.max(0, n)) + '</span><span class="lost">' + '♥'.repeat(Math.max(0, 2 - n)) + '</span>';
 
   // ---------- Configuración (pools + modo) ----------
   const poolIds = () => [...new Set(chars.map(c => c.pool))];
@@ -416,7 +458,6 @@
     const p = s.players[i];
     const mine = i === s.me;
     $('pname' + i).textContent = p.name + (mine ? ' (vos)' : '');
-    $('hearts' + i).innerHTML = s.gameMode === 'group' ? '' : hearts(p.lives);
     const box = $('box' + i);
     if (s.gameMode === 'group') {
       const key = mine ? 'p:' + (s.myPhrase || '') : 'tg';
@@ -531,8 +572,8 @@
     $('overSub').textContent = group
       ? (won ? '¡Adivinaste la frase del grupo de ' + opp.name + '!' : opp.name + ' adivinó la frase de tu grupo.')
       : won
-        ? (opp.lives === 0 ? opp.name + ' se quedó sin vidas.' : '¡Adivinaste el personaje de ' + opp.name + '!')
-        : (s.players[s.me].lives === 0 ? 'Te quedaste sin vidas.' : opp.name + ' adivinó tu personaje.');
+        ? '¡Adivinaste el personaje de ' + opp.name + '!'
+        : opp.name + ' adivinó tu personaje.';
     $('overlay').querySelector('.reveal').classList.toggle('hidden', group);
     $('revPhrases').classList.toggle('hidden', !group);
     if (group) {
@@ -561,7 +602,8 @@
   $('btnHome').onclick = () => { clearSession(); location.href = '/'; };
 
   function render() {
-    if (!state) { showScreen('Home'); Board.setVisible(false); updateBanner(); return; }
+    if (!state) { showScreen('Home'); Board.setVisible(false); renderNotes(null); updateBanner(); return; }
+    renderNotes(state);
     if (state.phase === 'lobby' || state.phase === 'choosing') {
       renderLobby();
       ['setupBox', 'changeModal', 'changeAsk'].forEach(m => $(m).classList.add('hidden'));
@@ -576,7 +618,7 @@
     const newRound = !prev || prev.round !== s.round;
     if (newRound || (s.phase === 'playing' && prev.phase !== 'playing')) {
       // ronda nueva (revancha o cambio de modo/pools) o arranque del juego tras escribir las frases
-      if (newRound) { Ragdoll.clearAll(); Board.clear(); struck.clear(); rivalStruck = []; }
+      if (newRound) { Ragdoll.clearAll(); Board.clear(); struck.clear(); rivalStruck = []; document.querySelectorAll('.crack').forEach(c => c.remove()); }
       zoneLocal = null;
       guessPending = false;
       celebrationUntil = 0;
@@ -602,7 +644,7 @@
   // Grupo social: el rival decidió sobre el personaje propuesto.
   Net.on('proposalResult', ({ by, characterId, valid }) => {
     const mine = state && by === state.me;
-    if (valid) { Ragdoll.sendHome(characterId); Sfx.good(); } else { Ragdoll.eject(characterId, 1 - by); Sfx.bad(); }
+    if (valid) { Ragdoll.sendHome(characterId); Sfx.good(); } else { Ragdoll.reject(characterId, 1 - by); Sfx.bad(); }
     if (mine) {
       zoneLocal = null;
       guessPending = false;
@@ -615,7 +657,7 @@
     const side = 1 - by; // el recuadro "?" estaba del lado del rival del que adivinó
     celebrationUntil = Date.now() + (correct ? 2300 : 1500);
     setTimeout(render, (correct ? 2300 : 1500) + 50);
-    if (correct) { Ragdoll.celebrate(characterId, side); Sfx.good(); } else { Ragdoll.eject(characterId, side); Sfx.bad(); }
+    if (correct) { Ragdoll.celebrate(characterId, side); Sfx.good(); } else { Ragdoll.reject(characterId, side); Sfx.bad(); }
     if (mine) zoneLocal = null;
     updateZoneUI();
   });
@@ -667,6 +709,19 @@
       galleryRect: () => $('gallery').getBoundingClientRect(),
       canGuess,
       canGift: () => !!state && state.phase === 'playing',
+      onReject: side => flashBox(side, 'reject', 650),
+      onImpact: side => {
+        flashBox(side, 'impact', 750);
+        const box = $('box' + side);
+        if (!box.querySelector('.crack')) box.insertAdjacentHTML('beforeend', crackSVG());
+        const r = box.getBoundingClientRect();
+        const ring = document.createElement('i');
+        ring.className = 'shock';
+        ring.style.left = r.left + r.width / 2 + 'px';
+        ring.style.top = r.top + r.height / 2 + 'px';
+        document.body.appendChild(ring);
+        setTimeout(() => ring.remove(), 700);
+      },
       send: (ev, data) => Net.send(ev, data),
       onChange: () => { updateAway(); updateZoneUI(); },
     });

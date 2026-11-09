@@ -348,6 +348,12 @@
   "pool": "bc"
  },
  {
+  "id": "owen",
+  "name": "Owen",
+  "file": "personajes/owen.webp",
+  "pool": "bc"
+ },
+ {
   "id": "puli-angel",
   "name": "Puli Angel",
   "file": "personajes/puli-angel.webp",
@@ -777,12 +783,6 @@
   "id": "dnd-jayce",
   "name": "Jayce",
   "file": "personajes/dnd-jayce.webp",
-  "pool": "dnd"
- },
- {
-  "id": "dnd-jayce-2",
-  "name": "Jayce (2)",
-  "file": "personajes/dnd-jayce-2.webp",
   "pool": "dnd"
  },
  {

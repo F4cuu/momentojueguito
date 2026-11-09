@@ -88,7 +88,6 @@ test('flujo completo cliente-servidor: sorteo privado, turnos, ragdoll y revanch
     await emit(b, 'rematch', { yes: true });
     await wait(100);
     assert.equal(a.latest.phase, 'playing');
-    assert.deepEqual(a.latest.players.map(p => p.lives), [2, 2]);
 
     // cambio a grupo social con JJK, aceptado por el rival
     assert.equal((await emit(a, 'proposeChange', { pools: ['jjk'], gameMode: 'group' })).ok, true);

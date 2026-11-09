@@ -6,7 +6,6 @@ const ANSWERS = ['Sí', 'No', 'No sé'];
 const MAX_QUESTION = 200;
 const MAX_NAME = 20;
 const MAX_PHRASE = 80;
-const LIVES = 2;
 const GAME_MODES = ['guess', 'group']; // guess: adivinar personaje · group: grupo social
 
 function fail(code) { throw new Error(code); }
@@ -46,7 +45,7 @@ function addPlayer(room, id, name) {
   const clean = String(name || '').trim().slice(0, MAX_NAME) || 'Jugador ' + (room.players.length + 1);
   const token = crypto.randomBytes(12).toString('hex');
   room.players.push({
-    id, token, name: clean, ready: false, lives: LIVES, character: null, connected: true,
+    id, token, name: clean, ready: false, character: null, connected: true,
     phrase: null, confirmed: [], rejected: [], discarded: [],
   });
   return { index: room.players.length - 1, token };
@@ -131,7 +130,6 @@ function startRound(room, characterIds, rng = Math.random) {
   room.pool = characterIds.slice();
   if (room.pool.length < 1) fail('POCOS_PERSONAJES');
   room.players.forEach(p => {
-    p.lives = LIVES;
     p.character = null;
     p.phrase = null;
     p.confirmed = [];
@@ -225,16 +223,9 @@ function guess(room, id, characterId) {
     room.nextStarter = 1 - i;
     return { correct: true, roundOver: true, winner: i };
   }
-  room.players[i].lives -= 1;
-  if (room.players[i].lives <= 0) {
-    room.phase = 'roundOver';
-    room.winner = 1 - i;
-    room.wins[1 - i] += 1;
-    room.nextStarter = i; // empieza el que perdió
-    return { correct: false, roundOver: true, winner: 1 - i };
-  }
+  // vidas infinitas: fallar solo pasa el turno
   passTurn(room);
-  return { correct: false, roundOver: false, livesLeft: room.players[i].lives };
+  return { correct: false, roundOver: false };
 }
 
 // Grupo social: propongo un personaje como parte del grupo del rival; el rival decide.
@@ -397,7 +388,7 @@ function viewFor(room, id) {
     chat: room.chat.slice(),
     rematch: room.rematch.slice(),
     players: room.players.map(p => ({
-      name: p.name, ready: p.ready, lives: p.lives, connected: p.connected,
+      name: p.name, ready: p.ready, connected: p.connected,
       hasPhrase: !!p.phrase, confirmed: p.confirmed.slice(), rejected: p.rejected.slice(), discarded: p.discarded.slice(),
     })),
     myCharacter: hidden ? null : room.players[me].character,
@@ -411,7 +402,7 @@ function viewFor(room, id) {
 }
 
 module.exports = {
-  ANSWERS, LIVES, GAME_MODES, MAX_PHRASE,
+  ANSWERS, GAME_MODES, MAX_PHRASE,
   createRoom, addPlayer, reconnect, setReady, allReady,
   beginChoosing, setDraft, acceptDraft, startRound, setPhrase,
   ask, answer, guess, propose, verdict, guessPhrase, judgePhrase, skip, gift,

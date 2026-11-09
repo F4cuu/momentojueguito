@@ -1,4 +1,6 @@
-# CLAUDE.md — Memoria del proyecto "Grimorio de Adivinanzas"
+# CLAUDE.md — Memoria del proyecto "Wachi wachi wachinanga, llegó tu papá el que manda"
+
+(Antes se llamaba "Grimorio de Adivinanzas".)
 
 ## Identidad y reglas de comportamiento
 
@@ -53,8 +55,9 @@ Juego web para 2 jugadores tipo "Quién es Quién" con personajes de Black Clove
   - `index.html`, `style.css`
   - `net.js` — cliente WS con reconexión exponencial (máx 5 s), acks, cola de mensajes con ack mientras está desconectado; evento `slow` a los 2,5 s.
   - `game.js` — UI principal (galería, tachados, chat, lobby, marcador). Usa `esc()` antes de cada `innerHTML`.
-  - `board.js` — pizarrón compartido.
-  - `ragdoll.js`, `physics.js` — arrastre de cartas con física de cuerpo rígido.
+  - `board.js` — pizarrón compartido (asoma por arriba).
+  - Bloc de notas (en `index.html` + `game.js`): privado, asoma por el borde del jugador (J1 izquierda, J2 derecha), se guarda en `localStorage` con clave `notas:<sala>:<jugador>`.
+  - `ragdoll.js`, `physics.js` — arrastre de cartas con física de cuerpo rígido. `reject()`: adivinanza/propuesta fallida, el recuadro la rechaza (`onReject`, sacudón rojo) y sale disparada en modo `fall` hasta el piso. `celebrate()`: acierto, la foto se estrella (`slam`) y queda incrustada (`onImpact`: sacudón, flash, onda y grietas SVG que se borran en la ronda nueva).
   - `sfx.js` — sonidos.
   - `characters.json` — `{ id, name, file, pool }` con `pool` = `bc` | `dnd` | `jjk`. Cada `pool` nuevo aparece solo como opción tildable (el server arma `POOLS` desde este archivo; agregar su nombre en `POOL_NAMES` de `game.js`).
   - `personajes/` — imágenes livianas `.webp` que usa el juego.
@@ -72,7 +75,7 @@ Juego web para 2 jugadores tipo "Quién es Quién" con personajes de Black Clove
 - Fases: `lobby` → `choosing` → (`setup` solo en grupo social) → `playing` → `roundOver` → (nueva ronda | `ended`).
 - Configuración = `{ pools: [...], gameMode: 'guess' | 'group' }`. En `choosing` hay un `draft` compartido: cualquiera lo cambia (`setDraft`, anula aceptaciones) y arranca cuando los dos hacen `acceptDraft`. Por defecto todos los pools tildados y modo `guess`.
 - `room.round` sube en cada ronda nueva; el cliente resetea cartas/pizarrón/tachados cuando cambia.
-- **Adivinar personaje**: cada jugador sortea por separado (**puede tocar el mismo personaje**, intencional). 2 vidas (`LIVES`). Adivinar solo en tu turno y antes de preguntar; acierto gana, error resta vida; con 0 vidas gana el rival.
+- **Adivinar personaje**: cada jugador sortea por separado (**puede tocar el mismo personaje**, intencional). **Sin vidas** (infinitas): adivinar solo en tu turno y antes de preguntar; acierto gana la ronda, error solo pasa el turno.
 - **Grupo social**: en `setup` cada uno escribe su frase secreta (≤ 80). En tu turno: preguntar, `propose` (arrastrar personaje al "?" del rival → `awaiting = 'verdict'` → el rival hace `verdict`; queda en `confirmed`/`rejected` del dueño del grupo y pasa el turno) o `guessPhrase` (→ `phraseVerdict` → el rival hace `judgePhrase`; correcta gana la ronda, si no pasa el turno). Sin vidas.
 - **Regalos** (`gift`, en `playing`, sea o no tu turno, no pasa el turno): arrastrar un personaje a tu propio recuadro. En grupo social lo suma a tu `confirmed`. En adivinar personaje lo suma a tu `discarded` ("no es mi personaje"; el propio da `ES_TU_PERSONAJE`). El rival lo ve marcado en su galería.
 - Grupo social: un personaje rechazado se tacha **solo en la galería de quien lo propuso** (no se muestra en las tablas laterales).
@@ -81,6 +84,9 @@ Juego web para 2 jugadores tipo "Quién es Quién" con personajes de Black Clove
 - La ronda siguiente la empieza el perdedor (`nextStarter`). Revancha: si alguno vota "no" → `ended`.
 - `viewFor` nunca expone el personaje ni la frase del rival hasta `roundOver`/`ended`. Mantener esa garantía en cualquier cambio.
 - Errores como códigos en mayúsculas (`NO_ES_TU_TURNO`, `SALA_LLENA`, etc.) lanzados con `fail()`.
+
+### Estilo visual
+- Tema "fiesta arcana": noche violeta + oro + neón magenta/cian. Fuentes: Bungee (logo), Lilita One (títulos), Cinzel de respaldo. Fondo con luces animadas (`body::before`) y estrellas/piso reticulado (`body::after`). Paneles con borde degradé (`.panel::before`).
 
 ### Convenciones
 - Todo el código, comentarios, textos de UI y mensajes en español.

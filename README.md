@@ -9,7 +9,7 @@ Juego web de 2 jugadores tipo "Quién es Quién" con los personajes de la carpet
 4. **Clic izquierdo** en la galería: tacha/destacha un personaje (es privado).
 5. **Clic derecho mantenido**: agarra una imagen y la arrastra (el rival la ve moverse en vivo).
 6. Para adivinar: soltá la imagen en el cuadrado **?** (solo en tu turno) y confirmá con **"Mmm, para mí sí"**. Con **"Permitime dudar..."** cancelás y la imagen sale despedida al centro.
-7. Cada jugador tiene 2 vidas. Si acertás, ganás la ronda. Al final se pregunta si juegan otra ronda.
+7. Vidas infinitas: si fallás, solo pasa el turno. Si acertás, ganás la ronda. Al final se pregunta si juegan otra ronda.
 8. Las notas de cada jugador las ve y las puede editar el rival.
 
 Se juega en computadora con mouse.
@@ -36,7 +36,7 @@ Nota: en el plan gratis el servidor se duerme tras un rato sin uso; la primera v
 
 ## Estructura
 - `server.js`: servidor HTTP + WebSocket (librería `ws`), salas en memoria.
-- `game-logic.js`: reglas puras (sorteo, turnos, vidas, adivinanzas, revancha).
+- `game-logic.js`: reglas puras (sorteo, turnos, adivinanzas, revancha).
 - `public/`: interfaz (`index.html`, `style.css`, `net.js`, `sfx.js`, `ragdoll.js`, `game.js`), imágenes optimizadas en `personajes/` y `characters.json`.
 - `tests/`: tests automáticos.
 

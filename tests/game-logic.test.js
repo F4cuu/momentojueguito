@@ -128,7 +128,6 @@ test('grupo social: proponer personaje, el rival lo valida o lo rechaza y pasa e
   G.propose(room, rival, 'p');
   G.verdict(room, me, false);
   assert.deepEqual(room.players[t].rejected, ['p']);
-  assert.deepEqual(room.players.map(p => p.lives), [2, 2]);
   assert.equal(room.turn, t);
   assert.throws(() => G.propose(room, me, 'x'), /YA_PROPUESTO/);
 });
@@ -191,10 +190,10 @@ test('el sorteo es realmente aleatorio: aparecen todos los personajes', () => {
   assert.equal(seen.size, CHARS.length);
 });
 
-test('cada jugador empieza con 2 vidas y el estado es playing', () => {
+test('al empezar el estado es playing y no hay vidas', () => {
   const { room } = started();
   assert.equal(room.phase, 'playing');
-  assert.deepEqual(room.players.map(p => p.lives), [2, 2]);
+  assert.equal(room.players[0].lives, undefined);
   assert.equal(room.awaiting, 'ask');
 });
 
@@ -242,25 +241,20 @@ test('acierto gana la ronda y suma al marcador', () => {
   assert.equal(room.wins[t], 1);
 });
 
-test('fallo resta una vida y pasa el turno; con 0 vidas pierde', () => {
+test('vidas infinitas: fallar solo pasa el turno, nunca termina la ronda', () => {
   const { room } = started();
   const t = room.turn;
   const wrong = CHARS.find(c => c !== room.players[1 - t].character);
-  const r1 = G.guess(room, idAt(room, t), wrong);
-  assert.equal(r1.correct, false);
-  assert.equal(room.players[t].lives, 1);
-  assert.equal(room.turn, 1 - t);
-  assert.equal(room.phase, 'playing');
-  // el rival pasa su turno con un fallo y vuelve a ser el turno de t
   const wrong2 = CHARS.find(c => c !== room.players[t].character);
-  G.guess(room, idAt(room, 1 - t), wrong2);
-  assert.equal(room.turn, t);
-  const r2 = G.guess(room, idAt(room, t), wrong);
-  assert.equal(room.players[t].lives, 0);
-  assert.equal(r2.roundOver, true);
-  assert.equal(room.phase, 'roundOver');
-  assert.equal(room.winner, 1 - t);
-  assert.equal(room.wins[1 - t], 1);
+  for (let i = 0; i < 10; i++) {
+    const r = G.guess(room, idAt(room, t), wrong);
+    assert.deepEqual(r, { correct: false, roundOver: false });
+    assert.equal(room.turn, 1 - t);
+    G.guess(room, idAt(room, 1 - t), wrong2);
+    assert.equal(room.turn, t);
+  }
+  assert.equal(room.phase, 'playing');
+  assert.deepEqual(room.wins, [0, 0]);
 });
 
 test('adivinar con personaje inexistente es rechazado', () => {
@@ -297,7 +291,6 @@ test('revancha: ambos aceptan -> nueva ronda con nuevo sorteo y vidas', () => {
   const res = G.rematchVote(room, idAt(room, 1), true, CHARS);
   assert.equal(res.started, true);
   assert.equal(room.phase, 'playing');
-  assert.deepEqual(room.players.map(p => p.lives), [2, 2]);
   assert.equal(room.turn, 1 - t); // empieza quien perdió
   assert.equal(room.wins[t], 1); // el marcador se conserva
 });

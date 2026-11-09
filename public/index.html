@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Grimorio de Adivinanzas</title>
+<title>Wachi wachi wachinanga, llegó tu papá el que manda</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Cinzel:wght@500;700&family=Lilita+One&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
 <!-- Inicio -->
 <section id="screenHome" class="screen">
   <div class="panel center-panel">
-    <h1>Grimorio de Adivinanzas</h1>
+    <h1 class="logo"><span>Wachi wachi wachinanga,</span><small>llegó tu papá el que manda</small></h1>
     <p class="sub">Adiviná el personaje secreto de tu rival antes de que adivine el tuyo.</p>
     <label for="nameInput">Tu apodo</label>
     <input id="nameInput" maxlength="20" placeholder="Ej: Balatro" autocomplete="off">
@@ -51,7 +51,7 @@
 <!-- Juego -->
 <section id="screenGame" class="screen hidden">
   <header id="topbar">
-    <div class="brand">Grimorio de Adivinanzas</div>
+    <div class="brand" title="Wachi wachi wachinanga, llegó tu papá el que manda"><span>Wachi wachi wachinanga</span><small>llegó tu papá el que manda</small></div>
     <div id="score"></div>
     <div class="tools">
       <span id="cfgInfo"></span>
@@ -67,7 +67,6 @@
     <div class="pname" id="pname0"></div>
     <div class="box" id="box0"></div>
     <div class="boxname" id="boxname0"></div>
-    <div class="hearts" id="hearts0"></div>
     <div class="strikes-title" id="stt0"></div>
     <div class="strikes" id="strikes0"></div>
     <div class="guess-slot" id="slot0"></div>
@@ -118,7 +117,6 @@
     <div class="pname" id="pname1"></div>
     <div class="box" id="box1"></div>
     <div class="boxname" id="boxname1"></div>
-    <div class="hearts" id="hearts1"></div>
     <div class="strikes-title" id="stt1"></div>
     <div class="strikes" id="strikes1"></div>
     <div class="guess-slot" id="slot1"></div>
@@ -208,6 +206,15 @@
     <div class="modal-btns" id="changeWaitBtns">
       <button id="btnChangeCancel" class="btn">Cancelar propuesta</button>
     </div>
+  </div>
+</div>
+
+<!-- Bloc de notas privado: se asoma por el extremo de la pantalla de cada jugador -->
+<div id="notes" class="notes hidden">
+  <button id="notesTab" class="notes-tab" title="Bloc de notas">📝 Notas</button>
+  <div class="notes-body">
+    <div class="notes-head"><b>Mis notas</b><small>Solo las ves vos</small></div>
+    <textarea id="notesText" placeholder="Pistas, datos, sospechas…" spellcheck="false"></textarea>
   </div>
 </div>
 

@@ -285,3 +285,209 @@ input:focus, textarea:focus { outline: 2px solid var(--gold-d); border-color: tr
 .strikes .sk.gift { border: 2px solid #6be38d; }
 .strikes .sk.gift::after { color: #6be38d; }
 .msg.sys.gift { background: #0f2a1a; border-color: #3fae6a; }
+
+/* =====================================================================
+   Wachi wachi wachinanga: tema "fiesta arcana" (neón + oro sobre noche)
+   ===================================================================== */
+:root {
+  --neon-m: #ff3fa4;   /* magenta */
+  --neon-c: #35e0ff;   /* cian */
+  --neon-v: #8b5cff;   /* violeta */
+  --panel: rgba(16, 14, 44, 0.78);
+  --line: #4a3f7a;
+}
+body {
+  background:
+    radial-gradient(900px 520px at 12% 8%, rgba(255, 63, 164, 0.20), transparent 60%),
+    radial-gradient(900px 600px at 92% 18%, rgba(53, 224, 255, 0.16), transparent 60%),
+    radial-gradient(1100px 700px at 50% 120%, rgba(139, 92, 255, 0.30), transparent 65%),
+    linear-gradient(180deg, #0b0820 0%, #090717 55%, #06040f 100%) fixed;
+}
+/* luces de boliche que se mueven despacio */
+body::before {
+  content: ""; position: fixed; inset: -20%; z-index: -1; pointer-events: none;
+  background:
+    conic-gradient(from 0deg at 20% 0%, transparent 0 20deg, rgba(255, 63, 164, 0.10) 26deg, transparent 34deg 360deg),
+    conic-gradient(from 0deg at 80% 0%, transparent 0 200deg, rgba(53, 224, 255, 0.09) 206deg, transparent 214deg 360deg),
+    conic-gradient(from 0deg at 50% 0%, transparent 0 170deg, rgba(224, 184, 76, 0.08) 176deg, transparent 184deg 360deg);
+  animation: luces 18s ease-in-out infinite alternate;
+}
+/* estrellas + piso reticulado */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(1.5px 1.5px at 12% 22%, #fff8 50%, transparent 51%),
+    radial-gradient(1px 1px at 33% 64%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 58% 14%, #fff7 50%, transparent 51%),
+    radial-gradient(1px 1px at 76% 46%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 88% 78%, #fff5 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 86%, #fff5 50%, transparent 51%),
+    radial-gradient(1px 1px at 47% 38%, #fff4 50%, transparent 51%),
+    linear-gradient(transparent 0 calc(100% - 1px), rgba(139, 92, 255, 0.10) 0) 0 0 / 100% 46px,
+    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgba(139, 92, 255, 0.08) 0) 0 0 / 46px 100%;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 55%, #000 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 55%, #000 100%);
+  opacity: 0.9;
+}
+@keyframes luces { from { transform: rotate(-6deg) translateX(-2%); } to { transform: rotate(6deg) translateX(2%); } }
+@media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
+
+h1, h2, .seat, .btn.gold { font-family: "Lilita One", "Cinzel", Georgia, serif; letter-spacing: 0.5px; }
+h2 { font-size: 19px; }
+
+/* Paneles: vidrio oscuro con borde degradé neón */
+.panel {
+  position: relative;
+  background: var(--panel);
+  border: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+}
+.panel::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 0;
+  background: linear-gradient(135deg, rgba(224, 184, 76, 0.9), rgba(255, 63, 164, 0.55) 40%, rgba(53, 224, 255, 0.55) 70%, rgba(224, 184, 76, 0.7));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+
+/* Logo */
+.logo { display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 0 0 10px; transform: rotate(-2.5deg); }
+.logo span, .brand span {
+  font-family: "Bungee", "Lilita One", sans-serif; line-height: 1;
+  background: linear-gradient(90deg, #ffe27a, #ff3fa4, #35e0ff, #ffe27a);
+  background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 2px 0 #2a0b3d) drop-shadow(0 0 14px rgba(255, 63, 164, 0.45));
+  animation: brillo 6s linear infinite;
+}
+.logo span { font-size: 30px; text-align: center; }
+.logo small, .brand small {
+  font-family: "Lilita One", sans-serif; color: var(--gold); letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(224, 184, 76, 0.55);
+}
+.logo small { font-size: 17px; }
+@keyframes brillo { to { background-position: 300% 0; } }
+
+/* Barra superior */
+#topbar {
+  padding: 6px 12px; border-radius: 14px;
+  background: linear-gradient(90deg, rgba(255, 63, 164, 0.10), rgba(16, 14, 44, 0.75) 25%, rgba(16, 14, 44, 0.75) 75%, rgba(53, 224, 255, 0.10));
+  border: 1px solid rgba(224, 184, 76, 0.35);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4), 0 0 24px rgba(139, 92, 255, 0.18);
+}
+.brand { display: flex; flex-direction: column; line-height: 1.05; transform: rotate(-1.5deg); }
+.brand span { font-size: 17px; }
+.brand small { font-size: 12px; }
+#score span, #score { font-family: "Lilita One", sans-serif; letter-spacing: 0.5px; }
+#score b {
+  display: inline-grid; place-items: center; min-width: 38px; height: 38px; margin: 0 4px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff1b0, #e0b84c 45%, #8a6418);
+  color: #2a1a02; font-size: 20px; box-shadow: 0 0 14px rgba(224, 184, 76, 0.6), inset 0 -3px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Botones */
+.btn { border-radius: 10px; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); }
+.btn:hover { filter: brightness(1.2); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35), 0 0 14px rgba(139, 92, 255, 0.45); }
+.btn.gold { box-shadow: 0 3px 0 #7a5a12, 0 0 16px rgba(224, 184, 76, 0.35); }
+.btn.gold:hover { box-shadow: 0 3px 0 #7a5a12, 0 0 22px rgba(255, 226, 122, 0.65); }
+
+/* Lados de cada jugador */
+.seat { font-size: 21px; color: var(--gold); text-shadow: 0 0 12px rgba(224, 184, 76, 0.5); }
+#side0 .seat { color: #ff8cc8; text-shadow: 0 0 12px rgba(255, 63, 164, 0.6); }
+#side1 .seat { color: #8ff0ff; text-shadow: 0 0 12px rgba(53, 224, 255, 0.6); }
+.box { border-radius: 16px; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5); }
+.box.mine { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(224, 184, 76, 0.15), 0 0 26px rgba(224, 184, 76, 0.35), 0 10px 26px rgba(0, 0, 0, 0.5); }
+.box.target {
+  background: radial-gradient(circle at 50% 45%, #1a1036 0%, #05030c 70%);
+  border: 3px dashed rgba(255, 63, 164, 0.7);
+  box-shadow: inset 0 0 40px rgba(139, 92, 255, 0.35), 0 10px 26px rgba(0, 0, 0, 0.5);
+}
+.box .q { font-family: "Bungee", sans-serif; font-size: 96px; color: rgba(255, 63, 164, 0.55); text-shadow: 0 0 22px rgba(255, 63, 164, 0.6); animation: latido 2.4s ease-in-out infinite; }
+.box.target.hot { border-color: var(--neon-c); background: radial-gradient(circle at 50% 45%, #10304a 0%, #05030c 70%); }
+.box.target.hot .q { color: var(--neon-c); text-shadow: 0 0 26px var(--neon-c); }
+@keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+
+/* Chat y galería */
+#turnInfo { background: rgba(16, 14, 44, 0.85); border-color: rgba(139, 92, 255, 0.5); }
+#turnInfo.mine { color: #fff; border: 1px solid var(--gold); background: linear-gradient(90deg, rgba(224, 184, 76, 0.18), rgba(255, 63, 164, 0.14)); box-shadow: 0 0 16px rgba(224, 184, 76, 0.35); }
+.msg { background: #211a52; }
+.msg.mine { background: linear-gradient(135deg, #3b2a85, #5a2a78); }
+#gallery { background: rgba(10, 8, 28, 0.6); border-color: rgba(139, 92, 255, 0.35); }
+.gcard { background: #120f30; border-color: #3a3166; transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s; }
+.gcard:hover { transform: translateY(-3px); border-color: var(--neon-c); box-shadow: 0 6px 16px rgba(53, 224, 255, 0.25); }
+.galhint { color: #b7b0e0; }
+
+/* ---------- Adivinanza fallida: el recuadro rechaza la carta ---------- */
+.box.reject { animation: rechazo 0.6s cubic-bezier(.36,.07,.19,.97); border-color: var(--bad) !important; box-shadow: 0 0 34px rgba(201, 72, 79, 0.8), inset 0 0 40px rgba(201, 72, 79, 0.5) !important; }
+@keyframes rechazo {
+  0% { transform: scale(1); }
+  15% { transform: scale(1.08) translateX(-6px); }
+  30% { transform: scale(0.96) translateX(6px); }
+  45% { transform: translateX(-5px); }
+  60% { transform: translateX(4px); }
+  80% { transform: translateX(-2px); }
+  100% { transform: none; }
+}
+
+/* ---------- Acierto: la foto se estrella y queda incrustada ---------- */
+.fcard.slam { animation: slam 0.55s cubic-bezier(.2,.9,.3,1.4) both, winpulse 0.5s ease-in-out 0.55s 4; }
+@keyframes slam {
+  0% { scale: 2.1; filter: brightness(1.6) blur(1px); }
+  30% { scale: 0.82; filter: brightness(2.2); }
+  55% { scale: 1.08; }
+  75% { scale: 0.97; }
+  100% { scale: 1; filter: none; }
+}
+.box.impact { animation: impacto 0.7s cubic-bezier(.36,.07,.19,.97); }
+.box.impact::after { content: ""; position: absolute; inset: 0; background: #fff; animation: flashazo 0.45s ease-out forwards; pointer-events: none; }
+@keyframes impacto {
+  0% { transform: scale(1); }
+  10% { transform: scale(0.9) rotate(-2deg); }
+  25% { transform: scale(1.04) translate(5px, -3px) rotate(1.5deg); }
+  40% { transform: translate(-5px, 3px); }
+  60% { transform: translate(3px, -2px); }
+  80% { transform: translate(-1px, 1px); }
+  100% { transform: none; }
+}
+@keyframes flashazo { from { opacity: 0.85; } to { opacity: 0; } }
+.crack { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.crack path { fill: none; stroke: rgba(255, 255, 255, 0.85); stroke-width: 0.7; stroke-linejoin: bevel; filter: drop-shadow(0 0 1.5px #ffe27a); stroke-dasharray: 200; stroke-dashoffset: 200; animation: grieta 0.35s ease-out forwards; }
+@keyframes grieta { to { stroke-dashoffset: 0; } }
+.shock {
+  position: fixed; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; z-index: 45; pointer-events: none;
+  border: 4px solid #ffe27a; box-shadow: 0 0 24px #ffe27a, inset 0 0 18px #ff3fa4;
+  animation: onda 0.65s ease-out forwards;
+}
+@keyframes onda { from { transform: scale(0.4); opacity: 1; } to { transform: scale(9); opacity: 0; border-width: 1px; } }
+
+/* ---------- Bloc de notas privado ---------- */
+.notes { position: fixed; top: 50%; z-index: 38; display: flex; align-items: center; transform: translateY(-50%); transition: left 0.28s ease, right 0.28s ease; }
+.notes.left { left: -300px; flex-direction: row-reverse; }
+.notes.right { right: -300px; flex-direction: row; }
+.notes.left.open { left: 0; }
+.notes.right.open { right: 0; }
+.notes-tab {
+  writing-mode: vertical-rl; padding: 14px 7px; cursor: pointer; border: 1px solid var(--gold-d);
+  font: 15px "Lilita One", sans-serif; letter-spacing: 1px; color: #231a05;
+  background: linear-gradient(#ffe27a, #e0b84c); box-shadow: 0 0 16px rgba(224, 184, 76, 0.45);
+}
+.notes.left .notes-tab { border-radius: 0 10px 10px 0; border-left: none; }
+.notes.right .notes-tab { border-radius: 10px 0 0 10px; border-right: none; transform: rotate(180deg); }
+.notes-body {
+  width: 300px; height: min(440px, 70vh); display: flex; flex-direction: column; gap: 6px; padding: 12px;
+  background:
+    repeating-linear-gradient(transparent 0 25px, rgba(53, 224, 255, 0.16) 25px 26px),
+    linear-gradient(#fff9e3, #f3e6bd);
+  border: 1px solid var(--gold-d); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+}
+.notes.left .notes-body { border-radius: 0 12px 12px 0; }
+.notes.right .notes-body { border-radius: 12px 0 0 12px; }
+.notes-head { display: flex; justify-content: space-between; align-items: baseline; color: #3a2a08; }
+.notes-head b { font: 18px "Lilita One", sans-serif; }
+.notes-head small { color: #7a6630; font-size: 11px; }
+#notesText {
+  flex: 1; resize: none; background: transparent; border: none; color: #2a2140; padding: 2px 4px;
+  font: 16px/26px "Segoe Print", "Comic Sans MS", "Bradley Hand", cursive;
+}
+#notesText:focus { outline: none; }

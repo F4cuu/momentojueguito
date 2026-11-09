@@ -6,7 +6,8 @@
 //   rest   quedó apoyada en el piso (se puede volver a agarrar)
 //   remote la sostiene/cae por el rival; yo solo la sigo
 //   zone   fija sobre el "?" del rival (intento de adivinar)
-//   free   expulsada (adivinanza fallida / "Permitime dudar...") suelta en el medio de la pantalla
+//   free   suelta en el medio de la pantalla ("Permitime dudar...")
+//   (una adivinanza fallida sale despedida del recuadro en modo fall: gravedad, rebotes y piso)
 //   home   vuelve a su lugar en la galería y desaparece
 const Ragdoll = (() => {
   const CW = 104, CH = 136;
@@ -267,7 +268,25 @@ const Ragdoll = (() => {
       setMode(c, 'zone');
     },
 
-    // La carta sale despedida y cae al medio de la pantalla (adivinanza fallida o "Permitime dudar...").
+    // Adivinanza fallida: el recuadro la rechaza y sale disparada con física (gravedad, giro y rebotes)
+    // hasta quedar apoyada en el piso, igual que cuando se suelta una carta sacada de la galería.
+    reject(id, fromSide) {
+      let c = cards.get(id);
+      const z = center(cfg.zoneRect(fromSide));
+      if (!c) { c = make(id, z.x, z.y); }
+      if (dragging === c) dragging = null;
+      const h = hash(id);
+      const dir = z.x < innerWidth / 2 ? 1 : -1; // hacia el centro de la pantalla
+      c.b.x = z.x; c.b.y = z.y;
+      c.b.vx = dir * (950 + (h % 450));
+      c.b.vy = -(650 + ((h >> 4) % 450));
+      c.b.w = dir * (9 + (h % 9));
+      c.restT = 0;
+      c.local = false; c.remoteZone = false;
+      setMode(c, 'fall');
+      if (cfg.onReject) cfg.onReject(fromSide);
+    },
+    // La carta sale despedida y queda suelta en el medio de la pantalla ("Permitime dudar...").
     eject(id, fromSide) {
       let c = cards.get(id);
       if (!c) {
@@ -297,9 +316,16 @@ const Ragdoll = (() => {
       c.remoteZone = false;
       c.local = false;
       setMode(c, 'zone');
-      c.el.classList.add('win');
+      // impacto: la foto se estrella y queda incrustada en el recuadro
+      c.b.x = center(cfg.zoneRect(side)).x; c.b.y = center(cfg.zoneRect(side)).y; c.b.ang = 0;
+      c.b.vx = c.b.vy = c.b.w = 0;
+      draw(c);
+      c.el.classList.remove('win', 'slam');
+      void c.el.offsetWidth;
+      c.el.classList.add('win', 'slam');
+      if (cfg.onImpact) setTimeout(() => cfg.onImpact(side), 170);
       const z = center(cfg.zoneRect(side));
-      for (let i = 0; i < 26; i++) {
+      for (let i = 0; i < 26; i++) setTimeout(() => {
         const s = document.createElement('i');
         s.className = 'spark';
         const a = Math.random() * Math.PI * 2, r = 90 + Math.random() * 170;
@@ -308,7 +334,7 @@ const Ragdoll = (() => {
         s.style.setProperty('--dy', Math.sin(a) * r + 'px');
         layer.appendChild(s);
         setTimeout(() => s.remove(), 1100);
-      }
+      }, 170);
     },
     sendHome(id) {
       const c = cards.get(id);
